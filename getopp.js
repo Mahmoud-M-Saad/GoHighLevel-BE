@@ -67,7 +67,7 @@ app.post('/crm-webhook', (req, res) => {
         try {
             await getExistingOpportunities();
             const IsExist = existingOpportunities.find((opportunitie) => {
-                return opportunitie.name === newOpportunitie.name;
+                return opportunitie.contact.email === newOpportunitie.contact.email;
             });
             if (IsExist) {
                 console.log("This opportunities is already Exist");
