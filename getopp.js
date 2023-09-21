@@ -61,6 +61,8 @@ app.get('/gettingCode', (req, res) => {
 // ----------------------------------------------------
 app.post('/upsertContact', (req, res) => {
     console.log(req.body);
+    console.log(req.params);
+    console.log(req.query);
 
 })
 // app.post('/upsertContact', (req, res) => {
