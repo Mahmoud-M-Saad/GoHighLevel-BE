@@ -61,6 +61,7 @@ app.get('/gettingCode', (req, res) => {
 // ----------------------------------------------------
 app.post('/upsertContact', (req, res) => {
     const newdata = req.body.contact;
+    console.log(req.body);
     console.log("Getting the data Successfully");
     fs.readFile("./DBTokens.json", (err, data) => {
         access_token = JSON
