@@ -60,3 +60,108 @@ try {
 app.listen(3000, () => {
     console.log(`Server is listening on port 3000`);
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+"state":State,
+
+"stage":Stage,
+"status":Status,
+"enrolled_debt":Enrolled Debt,
+"campaign":Campaign,
+"data_source":Data Source,
+"created_date":Created,
+"customer_id":Customer ID,
+"assigned_to":Assigned To,
+"dob":Date Of Birth,
+"last_credit_date":Last Credit Pulled Date}
+
+
+{
+"first_name":"First Name",
+"last_name":"Last Name",
+"phone":Home Phone,
+"email":Email,
+"address":Address 1,
+"city":City,
+"state":State,
+"zip":Zip,
+"sub_date":Submitted Date,
+"return_date":Returned Date,
+"enrolled_date":Enrolled_Date,
+"first_pay":cdr_pay1,
+"stage":Stage,
+"status":Status,
+"enrolled_debt":Enrolled Debt,
+"campaign":Campaign,
+"data_source":Data Source,
+"created_date":Created,
+"customer_id":Customer ID,
+"assigned_to":Assigned To,
+"dob":Date Of Birth,
+"last_credit_date":Last Credit Pulled Date}
+const data = 
+{
+"first_name" : "Mahmoud",
+"last_name":"saad",
+"phone":"0100",
+"email":"m@mail.com",
+"address":"miami",
+
+"city":"alex",
+"state":"New Lead",
+"stage":"lead",
+"status":"New Lead"
+}
+
+
+  data: {
+    firstName: 'Rosan',
+    lastName: 'Deo',
+    name: 'Rosan Deo',
+    email: 'rosan@deos.com',
+    locationId: 've9EPM428h8vShlRW1KT',
+    gender: 'male',
+    phone: '+1 888-888-8888',
+    address1: '3535 1st St N',
+    city: 'Dolomite',
+    state: 'AL',
+    postalCode: '35061',
+
+ 
+    
+};
+
+
+
+pipelineId ==> DPP Stage
+Stage Key==> DPP Status 
+
+pipelineId
+locationId
+contactId
+
+firstName: 'Rosan',
+    lastName: 'Deo',
+    name: 'Rosan Deo',
+    email: 'rosan@deos.com',
+    locationId: 've9EPM428h8vShlRW1KT',
+    gender: 'male',
+    phone: '+1 888-888-8888',
+    address1: '3535 1st St N',
+    city: 'Dolomite',
+    state: 'AL',
+    postalCode: '35061',
+    website: 'https://www.tesla.com',
+    timezone: 'America/Chihuahua',
