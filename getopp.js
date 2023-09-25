@@ -196,7 +196,17 @@ app.post('/upsertContact', (req, res) => {
     let newdata = JSON.parse(JSON.stringify(req.body));
     newdata.locationId = locationId;
     delete newdata.status;
-    delete newdata.stage;
+    delete newdata.zip;
+    delete newdata.sub_date;
+    delete newdata.return_date;
+    delete newdata.enrolled_date;
+    delete newdata.first_pay;
+    delete newdata.enrolled_debt;
+    delete newdata.campaign;
+    delete newdata.created_date;
+    delete newdata.assigned_to;
+    delete newdata.dob;
+    delete newdata.last_credit_date;
     console.log("Getting the data Successfully");
     // console.log(req.body); console.log(newdata);
     fs.readFile("./DBTokens.json", (err, data) => {
