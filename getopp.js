@@ -5,11 +5,11 @@ const app = express();
 const axios = require('axios').default;
 const locationId = "8KyubGi8XhoKHCpIvzGp";
 // ---- Testing Client ----
-const client_id = "65097ea78ef2c94808317db6-lmt7okly";
-const client_secret = "4354e6ce-6dcd-4f4a-9f45-5a278177fbfe";
+// const client_id = "65097ea78ef2c94808317db6-lmt7okly";
+// const client_secret = "4354e6ce-6dcd-4f4a-9f45-5a278177fbfe";
 // ------------------------
-// const client_id = "650477d15e0035fbc8737c87-lmkrakx4"; const client_secret =
-// "92867618-14e0-4392-961d-a5fbc4502780";
+const client_id = "650477d15e0035fbc8737c87-lmkrakx4";
+const client_secret = "92867618-14e0-4392-961d-a5fbc4502780";
 const {URLSearchParams} = require('url');
 let access_token;
 let refresh_token;
@@ -62,8 +62,6 @@ app.get('/gettingCode', (req, res) => {
     }
     createRefreshToken();
 });
-// ----------------------------------------------------
-
 app.post('/upsertContact', (req, res) => {
     let pipelineId;
     switch (req.body.stage) {
@@ -208,79 +206,105 @@ app.post('/upsertContact', (req, res) => {
         refresh_token = JSON
             .parse(data)
             .refresh_token;
-        async function upsertcontact() {
-            try {
-                const upsertContactReq = await axios.request({
-                    method: 'POST',
-                    url: 'https://services.leadconnectorhq.com/contacts/upsert',
-                    headers: {
-                        Authorization: `Bearer ${access_token}`,
-                        Version: '2021-07-28',
-                        'Content-Type': 'application/json',
-                        Accept: 'application/json'
-                    },
-                    data: newdata
-                });
-                console.log("Contact upserted Successfully", upsertContactReq.data);
-                async function createAccessTokenFromRefresh() {
-                    const encodedParamsForAccess = new URLSearchParams();
-                    encodedParamsForAccess.set('client_id', client_id);
-                    encodedParamsForAccess.set('client_secret', client_secret);
-                    encodedParamsForAccess.set('grant_type', 'refresh_token');
-                    encodedParamsForAccess.set('refresh_token', refresh_token);
-                    try {
-                        const newTokens = await axios.request({
-                            method: 'POST',
-                            url: 'https://services.leadconnectorhq.com/oauth/token',
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded',
-                                Accept: 'application/json'
-                            },
-                            data: encodedParamsForAccess
-                        });
-                        token = {
-                            "refresh_token": newTokens.data.refresh_token,
-                            "access_token": newTokens.data.access_token
-                        };
-                        fs.readFile("./DBTokens.json", (err, data) => {
-                            access_token = JSON
-                                .parse(data)
-                                .access_token;
-                            refresh_token = JSON
-                                .parse(data)
-                                .refresh_token;
-                            if (!(access_token === token.access_token) && !(refresh_token === token.refresh_token)) {
-                                console.log("New Tokens form Contact Created Successfully");
-                                fs.writeFileSync('./DBTokens.json', JSON.stringify(token));
+        // For any problems
+        // async function createAccessTokenReq() {
+        //     const encodedParamsForAccess = new URLSearchParams();
+        //     encodedParamsForAccess.set('client_id', client_id);
+        //     encodedParamsForAccess.set('client_secret', client_secret);
+        //     encodedParamsForAccess.set('grant_type', 'refresh_token');
+        //     encodedParamsForAccess.set('refresh_token', refresh_token);
+        //     const newTokens = await axios.request({
+        //         method: 'POST',
+        //         url: 'https://services.leadconnectorhq.com/oauth/token',
+        //         headers: {
+        //             'Content-Type': 'application/x-www-form-urlencoded',
+        //             Accept: 'application/json'
+        //         },
+        //         data: encodedParamsForAccess
+        //     });
+        //     token = {
+        //         "refresh_token": newTokens.data.refresh_token,
+        //         "access_token": newTokens.data.access_token
+        //     };
+        //     if (!(access_token === token.access_token) && !(refresh_token === token.refresh_token)) {
+        //         console.log("New Tokens form Contact Created Successfully");
+        //         fs.writeFileSync('./DBTokens.json', JSON.stringify(token));
+        //     }
+        //     await callingUpsertContact();
+        // }
+        // createAccessTokenReq();
+        // async function callingUpsertContact() {
+            async function upsertcontact() {
+                try {
+                    const upsertContactReq = await axios.request({
+                        method: 'POST',
+                        url: 'https://services.leadconnectorhq.com/contacts/upsert',
+                        headers: {
+                            Authorization: `Bearer ${access_token}`,
+                            Version: '2021-07-28',
+                            'Content-Type': 'application/json',
+                            Accept: 'application/json'
+                        },
+                        data: newdata
+                    });
+                    console.log("Contact upserted Successfully", upsertContactReq.data);
+                    async function createAccessTokenFromRefresh() {
+                        const encodedParamsForAccess = new URLSearchParams();
+                        encodedParamsForAccess.set('client_id', client_id);
+                        encodedParamsForAccess.set('client_secret', client_secret);
+                        encodedParamsForAccess.set('grant_type', 'refresh_token');
+                        encodedParamsForAccess.set('refresh_token', refresh_token);
+                        try {
+                            const newTokens = await axios.request({
+                                method: 'POST',
+                                url: 'https://services.leadconnectorhq.com/oauth/token',
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded',
+                                    Accept: 'application/json'
+                                },
+                                data: encodedParamsForAccess
+                            });
+                            token = {
+                                "refresh_token": newTokens.data.refresh_token,
+                                "access_token": newTokens.data.access_token
+                            };
+                            fs.readFile("./DBTokens.json", (err, data) => {
+                                access_token = JSON
+                                    .parse(data)
+                                    .access_token;
+                                refresh_token = JSON
+                                    .parse(data)
+                                    .refresh_token;
+                                if (!(access_token === token.access_token) && !(refresh_token === token.refresh_token)) {
+                                    console.log("New Tokens form Contact Created Successfully");
+                                    fs.writeFileSync('./DBTokens.json', JSON.stringify(token));
+                                }
+                                if (upsertContactReq.data.new === false) {
+                                    res.json({msg: "Contact Already Exists So updated Successfully"})
+                                    console.log("Contact Already Exists So updated Successfully");
+                                } else {
+                                    res.json({msg: "Contact Added Successfully"})
+                                    console.log("Contact Added Successfully");
+                                }
+                            });
+                            let Issucceded;
+                            if ((upsertContactReq.data.succeded === true) || (upsertContactReq.data.new === true)) {
+                                Issucceded = true;
+                                console.log("Issucceded  Inner: " + Issucceded);
                             }
-                            if(upsertContactReq.data.new === false){
-                              res.json({msg:"Contact Already Exists So updated Successfully"})
-                              console.log("Contact Already Exists So updated Successfully");
-                            }else{
-                              res.json({msg:"Contact Added Successfully"})
-                              console.log("Contact Added Successfully");
-                            }
-                        });
-                        let Issucceded;
-                        if ((upsertContactReq.data.succeded === true) || (upsertContactReq.data.new === true)) {
-                            Issucceded = true;
-                            console.log("Issucceded  Inner: " + Issucceded);
+                            console.log("Issucceded: " + Issucceded);
+                            await upsertOpportunities(Issucceded, upsertContactReq.data.contact.id);
+                        } catch (error) {
+                            console.error("Error From createAccessTokenFromRefresh function :", error);
                         }
-                        console.log("Issucceded: " + Issucceded);
-                        await upsertOpportunities(Issucceded, upsertContactReq.data.contact.id);
-                    } catch (error) {
-                        console.error("Error From createAccessTokenFromRefresh function :", error);
                     }
+                    createAccessTokenFromRefresh();
+                } catch (error) {
+                    console.error("Error From upsertContact function :", error);
                 }
-                createAccessTokenFromRefresh();
-            } catch (error) {
-                console.error("Error From upsertContact function :", error);
             }
-        }
-        upsertcontact();
-
-        // -----------------------------
-
+            upsertcontact();
+        // }
     });
     async function upsertOpportunities(Issucceded, contactID) {
         fs.readFile("./DBTokens.json", (err, data) => {
@@ -297,31 +321,28 @@ app.post('/upsertContact', (req, res) => {
                     pipelineId: pipelineId,
                     locationId: locationId,
                     contactId: contactID,
-                    // name: "opportunity name", status: "open",
                     pipelineStageId: stageId,
-                    // "monetaryValue": 220, assignedTo: client_id
                 };
                 async function upsertOpportunitiesReq() {
-                  
-                  const upsertOppReq = await axios.request({
-                    method: 'POST',
-                    url: 'https://services.leadconnectorhq.com/opportunities/upsert',
-                    headers: {
-                        Authorization: `Bearer ${access_token}`,
-                        Version: '2021-07-28',
-                        'Content-Type': 'application/json',
-                        Accept: 'application/json'
-                    },
-                    data: NewOpportunityData
-                });
-                console.log("OPP upserted Successfully", upsertOppReq.data);
-                console.log("new", upsertOppReq.data.new);
-                if(upsertOppReq.data.new === false){
-                  res.json({msg:"Opportunity Already Exists So updated Successfully"})
-                }else{
-                  res.json({msg:"Opportunity Added Successfully"})
+                    const upsertOppReq = await axios.request({
+                        method: 'POST',
+                        url: 'https://services.leadconnectorhq.com/opportunities/upsert',
+                        headers: {
+                            Authorization: `Bearer ${access_token}`,
+                            Version: '2021-07-28',
+                            'Content-Type': 'application/json',
+                            Accept: 'application/json'
+                        },
+                        data: NewOpportunityData
+                    });
+                    console.log("OPP upserted Successfully", upsertOppReq.data);
+                    console.log("new", upsertOppReq.data.new);
+                    if (upsertOppReq.data.new === false) {
+                        res.json({msg: "Opportunity Already Exists So updated Successfully"})
+                    } else {
+                        res.json({msg: "Opportunity Added Successfully"})
+                    }
                 }
-              }
                 upsertOpportunitiesReq();
                 async function createAccessTokenFromRefreshsec() {
                     const encodedParamsForAccess = new URLSearchParams();
@@ -360,99 +381,14 @@ app.post('/upsertContact', (req, res) => {
                     }
                 }
                 createAccessTokenFromRefreshsec();
-
             } else {
                 console.log("Contact Not Found");
-                res
-                    .status(400)
-                    .json({msg: "Contact Not Found"});
+                res.status(400).json({msg: "Contact Not Found"});
             }
-
         });
     }
-});
-
-app.post('/search', (req, res) => {
-    fs.readFile("./DBTokens.json", (err, data) => {
-        access_token = JSON
-            .parse(data)
-            .access_token;
-        refresh_token = JSON
-            .parse(data)
-            .refresh_token;
-        async function searchOpp() {
-            try {
-                const searchOppReq = await axios.request({
-                    method: 'POST',
-                    url: 'https://services.leadconnectorhq.com/opportunities/search',
-                    params: {
-                        location_id: locationId,
-                        contact_id: req.query.contactID
-                    },
-                    headers: {
-                        Authorization: `Bearer ${access_token}`,
-                        Version: '2021-07-28',
-                        'Content-Type': 'application/json',
-                        Accept: 'application/json'
-                    }
-                });
-                console.log(req.params.contactID);
-                console.log("Contact upserted Successfully", searchOppReq.data);
-                async function createAccessTokenFromRefresh() {
-                    const encodedParamsForAccess = new URLSearchParams();
-                    encodedParamsForAccess.set('client_id', client_id);
-                    encodedParamsForAccess.set('client_secret', client_secret);
-                    encodedParamsForAccess.set('grant_type', 'refresh_token');
-                    encodedParamsForAccess.set('refresh_token', refresh_token);
-                    try {
-                        const newTokens = await axios.request({
-                            method: 'POST',
-                            url: 'https://services.leadconnectorhq.com/oauth/token',
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded',
-                                Accept: 'application/json'
-                            },
-                            data: encodedParamsForAccess
-                        });
-                        token = {
-                            "refresh_token": newTokens.data.refresh_token,
-                            "access_token": newTokens.data.access_token
-                        };
-                        fs.readFile("./DBTokens.json", (err, data) => {
-                            access_token = JSON
-                                .parse(data)
-                                .access_token;
-                            refresh_token = JSON
-                                .parse(data)
-                                .refresh_token;
-                            if (!(access_token === token.access_token) && !(refresh_token === token.refresh_token)) {
-                                console.log("New Tokens form Contact Created Successfully");
-                                fs.writeFileSync('./DBTokens.json', JSON.stringify(token));
-                            }
-                            // if(searchOppReq.data.new === false){   res.json({msg:"Contact Already Exists
-                            // So updated Successfully"})   console.log("Contact Already Exists So updated
-                            // Successfully"); }else{   res.json({msg:"OPP Found"})   console.log("Contact
-                            // Added Successfully"); }
-                        });
-                    } catch (error) {
-                        console.error("Error From createAccessTokenFromRefresh function :", error);
-                    }
-                }
-                createAccessTokenFromRefresh();
-            } catch (error) {
-                console.error("Error From searchOpp function :", error);
-            }
-        }
-        searchOpp();
-
-        // -----------------------------
-
-    });
 });
 
 app.listen(3000, () => {
     console.log(`Server is listening on port 3000`);
 });
-
-
-
