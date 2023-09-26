@@ -145,7 +145,7 @@ app.post('/upsertContact', (req, res) => {
         case "testing2":
             pipelineId = "FD5dsMgfF109RZjtyPze";
             break;
-        case "lead":
+        case "Lead":
         case "Lost":
             pipelineId = "Y6FEUB7ogzVp9NGqOEGp";
             break;
