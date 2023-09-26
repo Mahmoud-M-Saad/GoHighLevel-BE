@@ -302,6 +302,7 @@ app.post('/upsertContact', (req, res) => {
             break;
         case "1st Payment NSF 1":
         case "1st Payment NSF 2":
+        case "NSF":
         case "NSF 1":
         case "NSF 2":
         case "Invalid Banking":
