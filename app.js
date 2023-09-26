@@ -5,12 +5,13 @@ const app = express();
 const axios = require('axios').default;
 // Fixed Data
 const locationId = "8KyubGi8XhoKHCpIvzGp";
-// ---- Testing Client ---- const client_id =
-// "65097ea78ef2c94808317db6-lmt7okly"; const client_secret =
-// "4354e6ce-6dcd-4f4a-9f45-5a278177fbfe";
+// ---- Testing Client ----
+// const client_id = "65097ea78ef2c94808317db6-lmt7okly";
+// const client_secret = "4354e6ce-6dcd-4f4a-9f45-5a278177fbfe";
 // ------------------------
 const client_id = "650477d15e0035fbc8737c87-lmkrakx4";
 const client_secret = "92867618-14e0-4392-961d-a5fbc4502780";
+// ------------------------
 const {URLSearchParams} = require('url');
 app.use(bodyParser.json());
 function readFile() {
@@ -19,7 +20,9 @@ function readFile() {
 }
 let Tokens,
     ContactRes,
-    OppRes;
+    OppRes,
+    SearchOppRes,
+    updateOppRes;
 app.get('/gettingCode', (req, res) => {
     let code = req.query.code;
     console.log("Getting the code Successfully, the code is:" + code);
@@ -136,6 +139,50 @@ async function upsertOpportunity(NewOpportunityData) {
         console.error("Error From upsertOpportunity function: ", error);
     }
 };
+async function searchOpportunity(contactID) {
+    Tokens = JSON.parse(readFile());
+    try {
+        const searchOppReq = await axios.request({
+            method: 'GET',
+            url: 'https://services.leadconnectorhq.com/opportunities/search',
+            params: {
+                location_id: locationId,
+                contact_id: contactID
+            },
+            headers: {
+                Authorization: `Bearer ${Tokens.access_token}`,
+                Version: '2021-07-28',
+                Accept: 'application/json'
+            }
+        });
+        SearchOppRes = searchOppReq.data;
+    } catch (error) {
+        console.error("Error From searchOpportunity function: ", error.data);
+    }
+};
+async function updateAllOpp(oppId, NewPipLine, stageId) {
+    Tokens = JSON.parse(readFile());
+    try {
+        const updateOppReq = await axios.request({
+            method: 'PUT',
+            url: `https://services.leadconnectorhq.com/opportunities/${oppId}`,
+            headers: {
+                Authorization: `Bearer ${Tokens.access_token}`,
+                Version: '2021-07-28',
+                'Content-Type': 'application/json',
+                Accept: 'application/json'
+            },
+            data: {
+                pipelineId: NewPipLine,
+                pipelineStageId: stageId
+            }
+        });
+        updateOppRes = updateOppReq.data;
+    } catch (error) {
+        console.error("Error From updateAllOpp function: ", error);
+    }
+};
+
 app.post('/upsertContact', (req, res) => {
     console.log("The Data Reseved is: ");
     console.log(req.body);
@@ -288,16 +335,15 @@ app.post('/upsertContact', (req, res) => {
         "postalCode": req.body.zip,
         "website": req.body.website || null,
         "timezone": req.body.timezone || null,
-        // "dnd": true, "dndSettings": {   "Call": {     "status": "active",
-        // "message": "string",     "code": "string"   },   "Email": {     "status":
-        // "active",     "message": "string",     "code": "string"   },   "SMS": {
-        // "status": "active",     "message": "string",     "code": "string"   },
-        // "WhatsApp": {     "status": "active",     "message": "string",     "code":
-        // "string"   },   "GMB": {     "status": "active",     "message": "string",
-        // "code": "string"   },   "FB": {     "status": "active",     "message":
-        // "string",     "code": "string"   } }, "inboundDndSettings": {   "all": {
-        // "status": "active",     "message": "string"   } }, "tags": [   "nisi sint
-        // commodo amet",   "consequat" ],
+        // "dnd": true, "dndSettings": {   "Call": {     "status": "active", "message":
+        // "string",     "code": "string"   },   "Email": {     "status": "active",
+        // "message": "string",     "code": "string"   },   "SMS": { "status": "active",
+        // "message": "string",     "code": "string"   }, "WhatsApp": {     "status":
+        // "active",     "message": "string",     "code": "string"   },   "GMB": {
+        // "status": "active",     "message": "string", "code": "string"   },   "FB": {
+        // "status": "active",     "message": "string",     "code": "string"   } },
+        // "inboundDndSettings": {   "all": { "status": "active",     "message":
+        // "string"   } }, "tags": [   "nisi sint commodo amet",   "consequat" ],
         "customFields": [
             {
                 "sub_date": req.body.sub_date,
@@ -329,15 +375,39 @@ app.post('/upsertContact', (req, res) => {
                 contactId: ContactRes.contact.id
             };
             await upsertOpportunity(NewOpportunityData);
+            await createAccessTokenFromRefresh();
             if (OppRes) {
                 res.json({msg: "Opportunity Created Successfully"});
             } else {
                 res.json({msg: "Sorry, Something went wrong"});
             }
+        } else if (ContactRes.new === false) {
+            await searchOpportunity(ContactRes.contact.id);
             await createAccessTokenFromRefresh();
+            if (SearchOppRes.opportunities) {
+                console.log("OLD Pipline: " + SearchOppRes.opportunities[0].pipelineId.toString());
+                console.log("NEW Pipline: " + pipelineId.toString());
+                await updateAllOpp(SearchOppRes.opportunities[0].id, pipelineId, stageId);
+                console.log(updateOppRes);
+                await createAccessTokenFromRefresh();
+                res.json({msg: "Opportunity Updated Successfully"});
+            } else {
+                NewOpportunityData = {
+                    pipelineId: pipelineId,
+                    locationId: locationId,
+                    pipelineStageId: stageId,
+                    contactId: ContactRes.contact.id
+                };
+                await upsertOpportunity(NewOpportunityData);
+                await createAccessTokenFromRefresh();
+                if (OppRes) {
+                    res.json({msg: "Opportunity Created Successfully"});
+                } else {
+                    res.json({msg: "Sorry, Something went wrong"});
+                }
+            }
         } else {
             res.json({msg: "Opportunity Already Exists"});
-            await createAccessTokenFromRefresh();
         }
         await createAccessTokenFromRefresh();
         console.log("ALL Operations Done Successfully");
