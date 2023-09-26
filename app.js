@@ -5,9 +5,9 @@ const app = express();
 const axios = require('axios').default;
 // Fixed Data
 const locationId = "8KyubGi8XhoKHCpIvzGp";
-// ---- Testing Client ----
-// const client_id = "65097ea78ef2c94808317db6-lmt7okly";
-// const client_secret = "4354e6ce-6dcd-4f4a-9f45-5a278177fbfe";
+// ---- Testing Client ---- const client_id =
+// "65097ea78ef2c94808317db6-lmt7okly"; const client_secret =
+// "4354e6ce-6dcd-4f4a-9f45-5a278177fbfe";
 // ------------------------
 const client_id = "650477d15e0035fbc8737c87-lmkrakx4";
 const client_secret = "92867618-14e0-4392-961d-a5fbc4502780";
@@ -17,7 +17,9 @@ function readFile() {
     const fileContents = fs.readFileSync('DBTokens.json', 'utf-8');
     return fileContents;
 }
-let Tokens, ContactRes, OppRes;
+let Tokens,
+    ContactRes,
+    OppRes;
 app.get('/gettingCode', (req, res) => {
     let code = req.query.code;
     console.log("Getting the code Successfully, the code is:" + code);
@@ -286,49 +288,16 @@ app.post('/upsertContact', (req, res) => {
         "postalCode": req.body.zip,
         "website": req.body.website || null,
         "timezone": req.body.timezone || null,
-        // "dnd": true,
-            // "dndSettings": {
-            //   "Call": {
-            //     "status": "active",
-            //     "message": "string",
-            //     "code": "string"
-            //   },
-            //   "Email": {
-            //     "status": "active",
-            //     "message": "string",
-            //     "code": "string"
-            //   },
-            //   "SMS": {
-            //     "status": "active",
-            //     "message": "string",
-            //     "code": "string"
-            //   },
-            //   "WhatsApp": {
-            //     "status": "active",
-            //     "message": "string",
-            //     "code": "string"
-            //   },
-            //   "GMB": {
-            //     "status": "active",
-            //     "message": "string",
-            //     "code": "string"
-            //   },
-            //   "FB": {
-            //     "status": "active",
-            //     "message": "string",
-            //     "code": "string"
-            //   }
-            // },
-            // "inboundDndSettings": {
-            //   "all": {
-            //     "status": "active",
-            //     "message": "string"
-            //   }
-            // },
-            // "tags": [
-            //   "nisi sint commodo amet",
-            //   "consequat"
-            // ],
+        // "dnd": true, "dndSettings": {   "Call": {     "status": "active",
+        // "message": "string",     "code": "string"   },   "Email": {     "status":
+        // "active",     "message": "string",     "code": "string"   },   "SMS": {
+        // "status": "active",     "message": "string",     "code": "string"   },
+        // "WhatsApp": {     "status": "active",     "message": "string",     "code":
+        // "string"   },   "GMB": {     "status": "active",     "message": "string",
+        // "code": "string"   },   "FB": {     "status": "active",     "message":
+        // "string",     "code": "string"   } }, "inboundDndSettings": {   "all": {
+        // "status": "active",     "message": "string"   } }, "tags": [   "nisi sint
+        // commodo amet",   "consequat" ],
         "customFields": [
             {
                 "sub_date": req.body.sub_date,
@@ -352,28 +321,29 @@ app.post('/upsertContact', (req, res) => {
     async function runAsyncFunctionsInOrder() {
         await createAccessTokenFromRefresh();
         await upsertContact(NewContactData);
-        if ((ContactRes.new === true) || ContactRes.succeded) {
+        if ((ContactRes.new === true)) {
             NewOpportunityData = {
                 pipelineId: pipelineId,
                 locationId: locationId,
                 pipelineStageId: stageId,
                 contactId: ContactRes.contact.id
             };
-        }
-        await createAccessTokenFromRefresh();
-        await upsertOpportunity(NewOpportunityData);
-        if(OppRes){
-            if (OppRes.new === false) {
-                res.json({msg: "Opportunity Already Exists So updated Successfully"});
-            } else if (OppRes.new === true) {
-                res.json({msg: "Opportunity Added Successfully"});
+            await upsertOpportunity(NewOpportunityData);
+            if (OppRes) {
+                res.json({msg: "Opportunity Created Successfully"});
+            } else {
+                res.json({msg: "Sorry, Something went wrong"});
             }
-        }else{
-            res.json({msg: "Sorry, Something went wrong!"});
+            await createAccessTokenFromRefresh();
+        } else {
+            res.json({msg: "Opportunity Already Exists"});
+            await createAccessTokenFromRefresh();
         }
         await createAccessTokenFromRefresh();
         console.log("ALL Operations Done Successfully");
     }
     runAsyncFunctionsInOrder();
 });
-app.listen(3000, () => {console.log(`Server is listening on port 3000`);});
+app.listen(3000, () => {
+    console.log(`Server is listening on port 3000`);
+});
