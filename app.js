@@ -367,11 +367,13 @@ app.post('/upsertContact', (req, res) => {
     }
     let status;
     switch (req.body.status) {
+
         case "New Lead":
         case "New Lead - PL Data":
         case "Attempted Contact":
         case "Appointment Scheduled":
         case "Missed Appointment":
+        case "Follow Up To Close":
         case "Submitted":
         case "Docs Signed - Clarity":
         case "Resubmitted - Clarity":
@@ -381,27 +383,8 @@ app.post('/upsertContact', (req, res) => {
         case "QA Needed":
         case "QA Rejected":
         case "Contract Needed":
+        case "Returned":
         case "Error Processing":
-            status = "open";
-            break;
-        case "Pitched":
-        case "Loan Only":
-        case "No PII":
-        case "Not Interested":
-        case "QA Failed":
-        case "Cancelled":
-            status = "lost";
-            break;
-        case "Low Debt":
-        case "No Debt":
-        case "Number Disconnected":
-        case "Already Enrolled":
-        case "Unemployed/Low Income":
-        case "Bankruptcy":
-        case "Bad State":
-        case "Duplicate":
-        case "Do Not Call":
-        case "Attempted Contact 2":
         case "1st Payment NSF 1":
         case "1st Payment NSF 2":
         case "NSF 1":
@@ -414,10 +397,35 @@ app.post('/upsertContact', (req, res) => {
         case "NSF":
         case "Paused / Hold":
         case "Banking Error":
+        case "Cancellation Requested":
+        case "On Hold - NSF":
         case "Pending Affiliate Cancellation":
         case "Admin Pause":
+            status = "open";
+            break;
+
+        case "Pitched":
+        case "Loan Only":
+        case "No PII":
+        case "Not Interested":
+        case "QA Failed":
+        case "Cancelled":
+            status = "lost";
+            break;
+
+        case "Low Debt":
+        case "No Debt":
+        case "Number Disconnected":
+        case "Already Enrolled":
+        case "Unemployed/Low Income":
+        case "Bankruptcy":
+        case "Bad State":
+        case "Duplicate":
+        case "Do Not Call":
+        case "Attempted Contact 2":
             status = "abandon";
             break;
+
         case "Active - Clarity":
         case "Initial Draft Pending":
         case "Awaiting First Settlement":
