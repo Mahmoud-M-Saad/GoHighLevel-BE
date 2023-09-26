@@ -337,7 +337,7 @@ app.post('/upsertContact', (req, res) => {
         case "QA Rejected":
         case "Contract Needed":
         case "Error Processing":
-            status = "Open";
+            status = "open";
             break;
         case "Pitched":
         case "Loan Only":
@@ -345,7 +345,7 @@ app.post('/upsertContact', (req, res) => {
         case "Not Interested":
         case "QA Failed":
         case "Cancelled":
-            status = "Lost";
+            status = "lost";
             break;
         case "Low Debt":
         case "No Debt":
@@ -371,7 +371,7 @@ app.post('/upsertContact', (req, res) => {
         case "Banking Error":
         case "Pending Affiliate Cancellation":
         case "Admin Pause":
-            status = "Abandon";
+            status = "abandon";
             break;
         case "Active - Clarity":
         case "Initial Draft Pending":
@@ -381,7 +381,7 @@ app.post('/upsertContact', (req, res) => {
         case "Waiting For First Payment":
         case "Active":
         case "Final Payment - File Review":
-            status = "Won";
+            status = "won";
             break;
         default:
             status = null;
