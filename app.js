@@ -385,8 +385,8 @@ app.post('/upsertContact', (req, res) => {
             await searchOpportunity(ContactRes.contact.id);
             await createAccessTokenFromRefresh();
             if (SearchOppRes.opportunities) {
-                console.log("OLD Pipline: " + SearchOppRes.opportunities[0].pipelineId.toString());
-                console.log("NEW Pipline: " + pipelineId.toString());
+                console.log("OLD Pipline: " + SearchOppRes.opportunities[0].pipelineId);
+                console.log("NEW Pipline: " + pipelineId);
                 await updateAllOpp(SearchOppRes.opportunities[0].id, pipelineId, stageId);
                 console.log(updateOppRes);
                 await createAccessTokenFromRefresh();
