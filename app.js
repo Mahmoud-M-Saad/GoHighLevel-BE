@@ -160,7 +160,7 @@ async function searchOpportunity(contactID) {
         console.error("Error From searchOpportunity function: ", error.data);
     }
 };
-async function updateAllOpp(oppId, NewPipLine, stageId) {
+async function updateAllOpp(oppId, NewPipLine, stageId, status) {
     Tokens = JSON.parse(readFile());
     try {
         const updateOppReq = await axios.request({
@@ -174,7 +174,8 @@ async function updateAllOpp(oppId, NewPipLine, stageId) {
             },
             data: {
                 pipelineId: NewPipLine,
-                pipelineStageId: stageId
+                pipelineStageId: stageId,
+                status: status
             }
         });
         updateOppRes = updateOppReq.data;
@@ -247,10 +248,16 @@ app.post('/upsertContact', (req, res) => {
         case "Submitted":
             stageId = "63082e30-ce92-44ef-9e57-ababf51576cb";
             break;
-        case "Docs Signed":
+        case "Docs Signed - Clarity":
             stageId = "7ced5021-bec6-4411-8dad-a82064ec7428";
             break;
-        case "Resubmitted":
+        case "Resubmitted - Clarity":
+            stageId = "d608948d-e29a-415b-8804-ef6d2d0c82f4";
+            break;
+        case "Docs Signed - Cordoba":
+            stageId = "7ced5021-bec6-4411-8dad-a82064ec7428";
+            break;
+        case "Resubmitted - Cordoba":
             stageId = "d608948d-e29a-415b-8804-ef6d2d0c82f4";
             break;
         case "CA in Escrow":
@@ -268,32 +275,118 @@ app.post('/upsertContact', (req, res) => {
         case "Returned":
             stageId = "a3277252-7381-4bb3-a1b9-2e99b63fb492";
             break;
-        case "Not Workable":
+        case "Low Debt":
+        case "No Debt":
+        case "Number Disconnected":
+        case "Already Enrolled":
+        case "Unemployed/Low Income":
+        case "Bankruptcy":
+        case "Bad State":
+        case "Duplicate":
+        case "Do Not Call":
             stageId = "b6addd21-1043-42c3-a9b9-bcc0c50a4a9d";
             break;
-        case "Unable To Contact":
+        case "Attempted Contact 2":
             stageId = "e2256b37-b8a5-4ff6-b10e-b8ea7313a932";
             break;
-        case "Active Clients":
+        case "Active - Clarity":
+        case "Initial Draft Pending":
+        case "Awaiting First Settlement":
+        case "Term Settlement":
+        case "Graduated":
+        case "Final Payment - File Review":
             stageId = "64891462-caca-462f-adf7-3d8b709ea82d";
             break;
-        case "Waiting On First Payment":
-            stageId = "0c84c727-cbef-4abd-8f4e-30ce5c37d5d3";
+        case "Error Processing":
+            stageId = "21c7e720-e367-4c85-a91c-6ae3a2df39b7";
             break;
-        case "Payment Issues":
-            stageId = "21c7e720-e367-4c85-a91c-6ae3a2df39b8";
+        case "1st Payment NSF 1":
+        case "1st Payment NSF 2":
+        case "NSF 1":
+        case "NSF 2":
+        case "Invalid Banking":
+        case "Unable to Locate Account 2":
+        case "Stopped Payment/Revoked":
+        case "Drafts on Hold":
+        case "Drafts on Hold - Cancel Pending":
+        case "Paused / Hold":
+        case "Banking Error":
+            stageId = "21c7e720-e367-4c85-a91c-6ae3a2df39b7";
             break;
-        case "Cancellation Requested":
+        case "Pending Affiliate Cancellation":
             stageId = "b393dae2-d08f-4bd5-8f43-29888d347210";
-            break;
-        case "Cancelled":
-            stageId = "5bd4c19a-e0e8-4209-9691-11643c94abc4";
             break;
         default:
             stageId = null;
             break;
     }
-    //
+    let status;
+    switch (req.body.status) {
+        case "New Lead":
+        case "New Lead - PL Data":
+        case "Attempted Contact":
+        case "Appointment Scheduled":
+        case "Missed Appointment":
+        case "Submitted":
+        case "Docs Signed - Clarity":
+        case "Resubmitted - Clarity":
+        case "Docs Signed - Cordoba":
+        case "Resubmitted - Cordoba":
+        case "CA in Escrow":
+        case "QA Needed":
+        case "QA Rejected":
+        case "Contract Needed":
+        case "Error Processing":
+            status = "Open";
+            break;
+        case "Pitched":
+        case "Loan Only":
+        case "No PII":
+        case "Not Interested":
+        case "QA Failed":
+        case "Cancelled":
+            status = "Lost";
+            break;
+        case "Low Debt":
+        case "No Debt":
+        case "Number Disconnected":
+        case "Already Enrolled":
+        case "Unemployed/Low Income":
+        case "Bankruptcy":
+        case "Bad State":
+        case "Duplicate":
+        case "Do Not Call":
+        case "Attempted Contact 2":
+        case "1st Payment NSF 1":
+        case "1st Payment NSF 2":
+        case "NSF 1":
+        case "NSF 2":
+        case "Invalid Banking":
+        case "Unable to Locate Account 2":
+        case "Stopped Payment/Revoked":
+        case "Drafts on Hold":
+        case "Drafts on Hold - Cancel Pending":
+        case "NSF":
+        case "Paused / Hold":
+        case "Banking Error":
+        case "Pending Affiliate Cancellation":
+        case "Admin Pause":
+            status = "Abandon";
+            break;
+        case "Active - Clarity":
+        case "Initial Draft Pending":
+        case "Awaiting First Settlement":
+        case "Term Settlement":
+        case "Graduated":
+        case "Waiting For First Payment":
+        case "Active":
+        case "Final Payment - File Review":
+            status = "Won";
+            break;
+        default:
+            status = null;
+            break;
+    }
     let NewContactData = {
         "firstName": req.body.first_name,
         "lastName": req.body.last_name,
@@ -335,7 +428,8 @@ app.post('/upsertContact', (req, res) => {
                 pipelineId: pipelineId,
                 locationId: locationId,
                 pipelineStageId: stageId,
-                contactId: ContactRes.contact.id
+                contactId: ContactRes.contact.id,
+                status: status
             };
             await upsertOpportunity(NewOpportunityData);
             await createAccessTokenFromRefresh();
@@ -350,7 +444,12 @@ app.post('/upsertContact', (req, res) => {
             if (SearchOppRes.opportunities) {
                 console.log("OLD Pipline: " + SearchOppRes.opportunities[0].pipelineId);
                 console.log("NEW Pipline: " + pipelineId);
-                await updateAllOpp(SearchOppRes.opportunities[0].id, pipelineId, stageId);
+                await updateAllOpp(
+                    SearchOppRes.opportunities[0].id,
+                    pipelineId,
+                    stageId,
+                    status
+                );
                 console.log(updateOppRes);
                 await createAccessTokenFromRefresh();
                 res.json({msg: "Opportunity Updated Successfully"});
@@ -359,7 +458,8 @@ app.post('/upsertContact', (req, res) => {
                     pipelineId: pipelineId,
                     locationId: locationId,
                     pipelineStageId: stageId,
-                    contactId: ContactRes.contact.id
+                    contactId: ContactRes.contact.id,
+                    status: status
                 };
                 await upsertOpportunity(NewOpportunityData);
                 await createAccessTokenFromRefresh();
