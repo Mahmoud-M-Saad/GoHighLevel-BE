@@ -6,11 +6,11 @@ const axios = require('axios').default;
 // Fixed Data
 const locationId = "8KyubGi8XhoKHCpIvzGp";
 // ---- Testing Client ----
-const client_id = "65097ea78ef2c94808317db6-lmt7okly";
-const client_secret = "4354e6ce-6dcd-4f4a-9f45-5a278177fbfe";
+// const client_id = "65097ea78ef2c94808317db6-lmt7okly";
+// const client_secret = "4354e6ce-6dcd-4f4a-9f45-5a278177fbfe";
 // ------------------------
-// const client_id = "650477d15e0035fbc8737c87-lmkrakx4"; const client_secret =
-// "92867618-14e0-4392-961d-a5fbc4502780";
+const client_id = "650477d15e0035fbc8737c87-lmkrakx4";
+const client_secret = "92867618-14e0-4392-961d-a5fbc4502780";
 const {URLSearchParams} = require('url');
 app.use(bodyParser.json());
 function readFile() {
@@ -368,6 +368,8 @@ app.post('/upsertContact', (req, res) => {
             } else if (OppRes.new === true) {
                 res.json({msg: "Opportunity Added Successfully"});
             }
+        }else{
+            res.json({msg: "Sorry, Something went wrong!"});
         }
         await createAccessTokenFromRefresh();
         console.log("ALL Operations Done Successfully");
