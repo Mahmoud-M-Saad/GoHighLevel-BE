@@ -5,9 +5,9 @@ const app = express();
 const axios = require('axios').default;
 // Fixed Data
 const locationId = "8KyubGi8XhoKHCpIvzGp";
-// ---- Testing Client ----
-// const client_id = "65097ea78ef2c94808317db6-lmt7okly";
-// const client_secret = "4354e6ce-6dcd-4f4a-9f45-5a278177fbfe";
+// ---- Testing Client ---- const client_id =
+// "65097ea78ef2c94808317db6-lmt7okly"; const client_secret =
+// "4354e6ce-6dcd-4f4a-9f45-5a278177fbfe";
 // ------------------------
 const client_id = "650477d15e0035fbc8737c87-lmkrakx4";
 const client_secret = "92867618-14e0-4392-961d-a5fbc4502780";
@@ -188,12 +188,6 @@ app.post('/upsertContact', (req, res) => {
     console.log(req.body);
     let pipelineId;
     switch (req.body.stage) {
-        case "testing":
-            pipelineId = "S6QYGwROfr6i3C7Pld4S";
-            break;
-        case "testing2":
-            pipelineId = "FD5dsMgfF109RZjtyPze";
-            break;
         case "Lead":
         case "Lost":
             pipelineId = "Y6FEUB7ogzVp9NGqOEGp";
@@ -201,8 +195,18 @@ app.post('/upsertContact', (req, res) => {
         case "Underwriting":
             pipelineId = "c0tkU2ao6U93GT84Sx4h";
             break;
-        case "Client":
+        case "Not Workable":
+            pipelineId = "Y6FEUB7ogzVp9NGqOEGp";
+            break;
+        case "Unable To Contact":
+            pipelineId = "sTLqxN8vtNtbEC4qnHde";
+            break;
+        case "Servicing-Clarity":
+        case "Servicing-Cordoba":
         case "Dropped Clients":
+        case "Completed Client":
+        case "Client":
+        case "Cancelled":
             pipelineId = "S6QYGwROfr6i3C7Pld4S";
             break;
         default:
@@ -210,12 +214,6 @@ app.post('/upsertContact', (req, res) => {
     };
     let stageId;
     switch (req.body.status) {
-        case "testing":
-            stageId = "cb436af6-e427-455e-8612-5e7448b3a760";
-            break;
-        case "testing2":
-            stageId = "b6addd21-1043-42c3-a9b9-bcc0c50a4a9d";
-            break;
         case "New Lead":
             stageId = "4846cdee-0231-406d-b0ac-0b83ce8ae384";
             break;
@@ -249,79 +247,53 @@ app.post('/upsertContact', (req, res) => {
         case "Submitted":
             stageId = "63082e30-ce92-44ef-9e57-ababf51576cb";
             break;
+        case "Docs Signed":
+            stageId = "7ced5021-bec6-4411-8dad-a82064ec7428";
+            break;
+        case "Resubmitted":
+            stageId = "d608948d-e29a-415b-8804-ef6d2d0c82f4";
+            break;
+        case "CA in Escrow":
+            stageId = "70b940ff-dbdb-46a4-83e2-75fa37ec663c";
+            break;
         case "QA Needed":
             stageId = "b7999315-27b7-47fe-ac91-fa78e4372de7";
             break;
         case "QA Rejected":
             stageId = "d6368fc8-a1e2-4eec-bee6-ad749b79aacd";
             break;
-        case "Multiple Cases: No Debt, Low Debt, Already Enrolled, Unemployed/Low Income, Ba" +
-                    "nkruptcy, Bad State, Duplicate, Do Not Call":
+        case "Contract Needed":
+            stageId = "e66e5c89-8c18-4da1-b942-f7f8dd4130f9";
+            break;
+        case "Returned":
+            stageId = "a3277252-7381-4bb3-a1b9-2e99b63fb492";
+            break;
+        case "Not Workable":
             stageId = "b6addd21-1043-42c3-a9b9-bcc0c50a4a9d";
             break;
-        case "Error Processing":
-            stageId = "1186c171-1e20-4357-9b04-24e4b5a1d4bf";
+        case "Unable To Contact":
+            stageId = "e2256b37-b8a5-4ff6-b10e-b8ea7313a932";
             break;
-        case "Initial Draft Pending":
-            stageId = "18473515-732d-4a6b-ad46-2ee0aba8ad99";
+        case "Active Clients":
+            stageId = "64891462-caca-462f-adf7-3d8b709ea82d";
             break;
-        case "1st Payment NSF 1":
-            stageId = "09c40a5c-9b0b-4aa3-a95b-58f0ea320cb8";
-            break;
-        case "1st Payment NSF 2":
-            stageId = "a8c6496f-0e4d-4be8-8fe7-460ccf5a34eb";
-            break;
-        case "NSF 1":
-            stageId = "00e79e0a-5aaf-467e-8183-4a069c000617";
-            break;
-        case "NSF 2":
-            stageId = "54033b83-014b-4f18-92d6-0de8887a0fdb";
-            break;
-        case "Invalid Banking":
-            stageId = "f773de8d-60ff-4485-ba2f-fa997e7c79fa";
-            break;
-        case "Unable to Locate Account 2":
+        case "Waiting On First Payment":
             stageId = "0c84c727-cbef-4abd-8f4e-30ce5c37d5d3";
             break;
-        case "Stopped Payment/Revoked":
-            stageId = "b5b6fb97-7c20-41ee-b4b7-aab7700acf25";
-            break;
-        case "Drafts on Hold":
-            stageId = "702eef4d-a907-43d5-bfc3-58403c914117";
-            break;
-        case "Drafts on Hold - Cancel Pending":
-            stageId = "c015bf90-fa0a-498b-ab16-d16663a06b27";
-            break;
-        case "Awaiting First Settlement":
-            stageId = "e9e0d718-2dc2-404c-bc5f-5239e43c1812";
-            break;
-        case "Active":
-            stageId = "274f7516-3d9d-4d14-8251-3d1d6e135fd6";
-            break;
-        case "Term Settlement":
-            stageId = "a10afede-dca1-4c6f-a444-f10e23ed6791";
-            break;
-        case "NSF":
-            stageId = "ad96d361-16c3-4c23-b99b-bb313fe13f31";
-            break;
-        case "Paused / Hold":
-            stageId = "f4f67a73-c91a-4307-bffa-322364476a90";
-            break;
-        case "Banking Error":
-            stageId = "8b8715c8-df44-4c9a-b829-b0a6028f2136";
+        case "Payment Issues":
+            stageId = "21c7e720-e367-4c85-a91c-6ae3a2df39b8";
             break;
         case "Cancellation Requested":
-            stageId = "c580cc4b-9561-4fc0-aeab-d60aeed8bdbf";
-            break;
-        case "Graduated":
-            stageId = "693278db-7ab1-4f6e-927d-4a5d9946bf47";
+            stageId = "b393dae2-d08f-4bd5-8f43-29888d347210";
             break;
         case "Cancelled":
-            stageId = "1c1fc885-d810-4836-a96a-80c0e250bed5";
+            stageId = "5bd4c19a-e0e8-4209-9691-11643c94abc4";
             break;
         default:
-            stageId = "Case Name not found";
-    };
+            stageId = null;
+            break;
+    }
+    //
     let NewContactData = {
         "firstName": req.body.first_name,
         "lastName": req.body.last_name,
@@ -335,15 +307,6 @@ app.post('/upsertContact', (req, res) => {
         "postalCode": req.body.zip,
         "website": req.body.website || null,
         "timezone": req.body.timezone || null,
-        // "dnd": true, "dndSettings": {   "Call": {     "status": "active", "message":
-        // "string",     "code": "string"   },   "Email": {     "status": "active",
-        // "message": "string",     "code": "string"   },   "SMS": { "status": "active",
-        // "message": "string",     "code": "string"   }, "WhatsApp": {     "status":
-        // "active",     "message": "string",     "code": "string"   },   "GMB": {
-        // "status": "active",     "message": "string", "code": "string"   },   "FB": {
-        // "status": "active",     "message": "string",     "code": "string"   } },
-        // "inboundDndSettings": {   "all": { "status": "active",     "message":
-        // "string"   } }, "tags": [   "nisi sint commodo amet",   "consequat" ],
         "customFields": [
             {
                 "sub_date": req.body.sub_date,
