@@ -160,7 +160,14 @@ async function searchOpportunity(contactID) {
         console.error("Error From searchOpportunity function: ", error.data);
     }
 };
-async function updateAllOpp(oppId, NewPipLine, stageId, status) {
+async function updateAllOpp(
+    oppId,
+    NewPipLine,
+    stageId,
+    status,
+    assigned_to,
+    monetaryValue
+) {
     Tokens = JSON.parse(readFile());
     try {
         const updateOppReq = await axios.request({
@@ -175,7 +182,9 @@ async function updateAllOpp(oppId, NewPipLine, stageId, status) {
             data: {
                 pipelineId: NewPipLine,
                 pipelineStageId: stageId,
-                status: status
+                status: status,
+                assignedTo: assigned_to || null,
+                monetaryValue: monetaryValue
             }
         });
         updateOppRes = updateOppReq.data;
@@ -367,7 +376,6 @@ app.post('/upsertContact', (req, res) => {
     }
     let status;
     switch (req.body.status) {
-
         case "New Lead":
         case "New Lead - PL Data":
         case "Attempted Contact":
@@ -453,19 +461,28 @@ app.post('/upsertContact', (req, res) => {
         "postalCode": req.body.zip,
         "website": req.body.website || null,
         "timezone": req.body.timezone || null,
+        "dateOfBirth": req.body.dob,
         "customFields": [
             {
-                "sub_date": req.body.sub_date,
-                "return_date": req.body.return_date,
-                "enrolled_date": req.body.enrolled_date,
-                "first_pay": req.body.first_pay,
-                "enrolled_debt": req.body.enrolled_debt,
-                "campaign": req.body.campaign,
-                "created_date": req.body.created_date,
-                "customer_id": req.body.customer_id,
-                "assigned_to": req.body.assigned_to,
-                "dob": req.body.dob,
-                "last_credit_date": req.body.last_credit_date
+                "id": "r6MLzyK11mGr9yeqzeET",
+                "key": "contact.submission_date",
+                "field_value": req.body.sub_date
+            }, {
+                "id": "UexXb4dUmBFilIedw5sl",
+                "key": "contact.returned_date",
+                "field_value": req.body.return_date
+            }, {
+                "id": "3vuPBvMDIbhJTUWwjRSv",
+                "key": "contact.enrolled_date",
+                "field_value": req.body.enrolled_date
+            }, {
+                "id": "aJ1AaaTeblIcbJalrRhu",
+                "key": "contact.first_pay_date",
+                "field_value": req.body.first_pay
+            }, {
+                "id": "ztxX3gIgfeMqgFCM8nmt",
+                "key": "contact.enrolled_debt",
+                "field_value": req.body.enrolled_debt
             }
         ],
         "source": req.body.data_source,
@@ -482,7 +499,9 @@ app.post('/upsertContact', (req, res) => {
                 locationId: locationId,
                 pipelineStageId: stageId,
                 contactId: ContactRes.contact.id,
-                status: status
+                status: status,
+                assignedTo: req.body.assigned_to || null,
+                monetaryValue: req.body.enrolled_debt || null
             };
             await upsertOpportunity(NewOpportunityData);
             await createAccessTokenFromRefresh();
@@ -494,14 +513,17 @@ app.post('/upsertContact', (req, res) => {
         } else if (ContactRes.new === false) {
             await searchOpportunity(ContactRes.contact.id);
             await createAccessTokenFromRefresh();
-            if (SearchOppRes.opportunities) {
+            console.log(SearchOppRes);
+            if (SearchOppRes.opportunities.id) {
                 console.log("OLD Pipline: " + SearchOppRes.opportunities[0].pipelineId);
                 console.log("NEW Pipline: " + pipelineId);
                 await updateAllOpp(
                     SearchOppRes.opportunities[0].id,
                     pipelineId,
                     stageId,
-                    status
+                    status,
+                    req.body.assigned_to,
+                    req.body.enrolled_debt
                 );
                 console.log(updateOppRes);
                 await createAccessTokenFromRefresh();
@@ -512,7 +534,9 @@ app.post('/upsertContact', (req, res) => {
                     locationId: locationId,
                     pipelineStageId: stageId,
                     contactId: ContactRes.contact.id,
-                    status: status
+                    status: status,
+                    assignedTo: req.body.assigned_to || null,
+                    monetaryValue: req.body.enrolled_debt || null
                 };
                 await upsertOpportunity(NewOpportunityData);
                 await createAccessTokenFromRefresh();
