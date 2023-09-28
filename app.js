@@ -209,7 +209,7 @@ app.post('/upsertContact', (req, res) => {
             pipelineId = "c0tkU2ao6U93GT84Sx4h";
             break;
         case "Lead Qualification":
-            pipelineId = "FD5dsMgfF109RZjtyPze";
+            pipelineId = "FclsD5dsMgfF109RZjtyPze";
             break;
         case "Unable To Contact":
             pipelineId = "sTLqxN8vtNtbEC4qnHde";
