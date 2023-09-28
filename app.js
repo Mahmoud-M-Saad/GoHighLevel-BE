@@ -411,7 +411,6 @@ app.post('/upsertContact', (req, res) => {
         case "Admin Pause":
             status = "open";
             break;
-
         case "Pitched":
         case "Loan Only":
         case "No PII":
@@ -420,7 +419,6 @@ app.post('/upsertContact', (req, res) => {
         case "Cancelled":
             status = "lost";
             break;
-
         case "Low Debt":
         case "No Debt":
         case "Number Disconnected":
@@ -433,7 +431,6 @@ app.post('/upsertContact', (req, res) => {
         case "Attempted Contact 2":
             status = "abandon";
             break;
-
         case "Active - Clarity":
         case "Initial Draft Pending":
         case "Awaiting First Settlement":
@@ -447,7 +444,7 @@ app.post('/upsertContact', (req, res) => {
         default:
             status = null;
             break;
-    }
+    };
     let NewContactData = {
         "firstName": req.body.first_name,
         "lastName": req.body.last_name,
@@ -483,6 +480,14 @@ app.post('/upsertContact', (req, res) => {
                 "id": "ztxX3gIgfeMqgFCM8nmt",
                 "key": "contact.enrolled_debt",
                 "field_value": req.body.enrolled_debt
+            }, {
+                "id": "jAMguF0Fidj60mtdBD8M",
+                "key": "contact.forth_id",
+                "field_value": req.body.customer_id
+            }, {
+                "id": "t78ZnIO9ypY4LYT2ETFk",
+                "key": "contact.last_credit_pulled_date",
+                "field_value": req.body.last_credit_date
             }
         ],
         "source": req.body.data_source,
