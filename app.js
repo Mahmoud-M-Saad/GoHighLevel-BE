@@ -11,7 +11,7 @@ const locationId = "8KyubGi8XhoKHCpIvzGp";
 // --------------------------------------------
 const client_id = "650477d15e0035fbc8737c87-lmkrakx4";
 const client_secret = "92867618-14e0-4392-961d-a5fbc4502780";
-// --------------------------------------------
+// ------------------------
 const {URLSearchParams} = require('url');
 app.use(bodyParser.json());
 function readFile() {
@@ -19,10 +19,13 @@ function readFile() {
     return fileContents;
 }
 let Tokens,
-    ContactRes,
+    updateContactRes,
+    createContactRes,
     OppRes,
     SearchOppRes,
-    updateOppRes;
+    updateOppRes,
+    SearchContact;
+let ContactIDFromCU = false;
 app.get('/gettingCode', (req, res) => {
     let code = req.query.code;
     console.log("Getting the code Successfully, the code is:" + code);
@@ -89,12 +92,34 @@ async function createAccessTokenFromRefresh() {
         console.error("Error From createAccessTokenFromRefresh function :", error);
     }
 };
-async function upsertContact(NewContactData) {
+async function searchContact(contactNumber, contactEmail) {
     Tokens = JSON.parse(readFile());
     try {
-        const upsertContactReq = await axios.request({
+        const searchContact = await axios.request({
+            method: 'GET',
+            url: 'https://services.leadconnectorhq.com/contacts/search/duplicate',
+            params: {
+                locationId: locationId,
+                number: contactNumber,
+                email: contactEmail
+            },
+            headers: {
+                Authorization: `Bearer ${Tokens.access_token}`,
+                Version: '2021-07-28',
+                Accept: 'application/json'
+            }
+        });
+        SearchContact = searchContact.data.contact;
+    } catch (error) {
+        console.error("Error From searchContact function: ", error.data);
+    }
+};
+async function createContact(NewContactData) {
+    Tokens = JSON.parse(readFile());
+    try {
+        const createContactRequest = await axios.request({
             method: 'POST',
-            url: 'https://services.leadconnectorhq.com/contacts/upsert',
+            url: 'https://services.leadconnectorhq.com/contacts/',
             headers: {
                 Authorization: `Bearer ${Tokens.access_token}`,
                 Version: '2021-07-28',
@@ -103,41 +128,28 @@ async function upsertContact(NewContactData) {
             },
             data: NewContactData
         });
-        if (upsertContactReq.data.new === false) {
-            console.log("Contact Already Exists So updated Successfully");
-        } else {
-            console.log("Contact Added Successfully");
-        }
-        console.log("Contact upserted Successfully", upsertContactReq.data);
-        console.log("customFields: ", upsertContactReq.data.contact.customFields);
-        ContactRes = upsertContactReq.data;
+        createContactRes = createContactRequest.data;
     } catch (error) {
-        console.error("Error From upsertContact function: ", error);
+        console.error("Error From createContact function: ", error);
     }
 };
-async function createOpportunity(NewOpportunityData) {
+async function updateContact(ContactData, contactId) {
     Tokens = JSON.parse(readFile());
     try {
-        const upsertOppReq = await axios.request({
-            method: 'POST',
-            url: 'https://services.leadconnectorhq.com/opportunities/',
+        const updateContactRequest = await axios.request({
+            method: 'PUT',
+            url: `https://services.leadconnectorhq.com/contacts/${contactId}`,
             headers: {
                 Authorization: `Bearer ${Tokens.access_token}`,
                 Version: '2021-07-28',
                 'Content-Type': 'application/json',
                 Accept: 'application/json'
             },
-            data: NewOpportunityData
+            data: ContactData
         });
-        if (upsertOppReq.data.new === false) {
-            console.log("Opportunity Already Exists So updated Successfully");
-        } else {
-            console.log("Opportunity Added Successfully");
-        }
-        console.log("Opportunity upserted Successfully", upsertOppReq.data);
-        OppRes = upsertOppReq.data;
+        updateContactRes = updateContactRequest.data;
     } catch (error) {
-        console.error("Error From createOpportunity function: ", error);
+        console.error("Error From updateContactRequest function: ", error);
     }
 };
 async function searchOpportunity(contactID) {
@@ -161,14 +173,26 @@ async function searchOpportunity(contactID) {
         console.error("Error From searchOpportunity function: ", error.data);
     }
 };
-async function updateAllOpp(
-    oppId,
-    NewPipLine,
-    stageId,
-    status,
-    assigned_to,
-    monetaryValue
-) {
+async function createOpportunity(NewOpportunityData) {
+    Tokens = JSON.parse(readFile());
+    try {
+        const createOppRequest = await axios.request({
+            method: 'POST',
+            url: 'https://services.leadconnectorhq.com/opportunities/',
+            headers: {
+                Authorization: `Bearer ${Tokens.access_token}`,
+                Version: '2021-07-28',
+                'Content-Type': 'application/json',
+                Accept: 'application/json'
+            },
+            data: NewOpportunityData
+        });
+        OppRes = createOppRequest.data;
+    } catch (error) {
+        console.error("Error From createOpportunity function: ", error);
+    }
+};
+async function updateOpp(NewOpportunityData,oppId) {
     Tokens = JSON.parse(readFile());
     try {
         const updateOppReq = await axios.request({
@@ -180,13 +204,7 @@ async function updateAllOpp(
                 'Content-Type': 'application/json',
                 Accept: 'application/json'
             },
-            data: {
-                pipelineId: NewPipLine,
-                pipelineStageId: stageId,
-                status: status,
-                assignedTo: assigned_to || null,
-                monetaryValue: parseInt(monetaryValue)
-            }
+            data: NewOpportunityData
         });
         updateOppRes = updateOppReq.data;
     } catch (error) {
@@ -201,8 +219,8 @@ app.post('/upsertContact', (req, res) => {
     switch (req.body.stage) {
         case "Lead":
         case "Lost":
-            case "Not Workable":
-            case "Sales Pipeline":
+        case "Not Workable":
+        case "Sales Pipeline":
             pipelineId = "Y6FEUB7ogzVp9NGqOEGp";
             break;
         case "Underwriting":
@@ -497,77 +515,81 @@ app.post('/upsertContact', (req, res) => {
         "country": req.body.contry || null,
         "companyName": req.body.company_name || null
     };
-    let NewOpportunityData = null;
+    let NewOpportunityData = {
+        "pipelineId": pipelineId,
+        "locationId": locationId,
+        "name": "Opportunity",
+        "pipelineStageId": stageId,
+        "status": status,
+        "monetaryValue": parseInt(req.body.enrolled_debt),
+        // "assignedTo": req.body.assigned_to
+    };
     async function runAsyncFunctionsInOrder() {
         await createAccessTokenFromRefresh();
-        await upsertContact(NewContactData);
-        if ((ContactRes.new === true)) {
-            NewOpportunityData = {
-                pipelineId: pipelineId,
-                locationId: locationId,
-                name: 'Opportunity',
-                pipelineStageId: stageId,
-                status: status,
-                contactId: ContactRes.contact.id,
-                monetaryValue: parseInt(req.body.enrolled_debt),
-                assignedTo: req.body.assigned_to
-            };
-            await createOpportunity(NewOpportunityData);
+        await searchContact(req.body.phone, req.body.email);
+        if (SearchContact === null) {
+            console.log("Contact Not exsits");
+            await createContact(NewContactData);
             await createAccessTokenFromRefresh();
-            if (OppRes) {
-                console.log("Opportunity Created Successfully");
-                res.json({msg: "Opportunity Created Successfully"});
+            if (createContactRes.contact.id) {
+                console.log("Contact Created Successfully");
+                console.log(createContactRes);
+                console.log(updateContactRes.contact.customFields);
+                ContactIDFromCU = createContactRes.contact.id;
+                await RunOpp(createContactRes.contact.id);
             } else {
-                console.log("Sorry, Something went wrong");
-                res.json({msg: "Sorry, Something went wrong"});
-            }
-        } else if (ContactRes.new === false) {
-            await searchOpportunity(ContactRes.contact.id);
-            await createAccessTokenFromRefresh();
-            console.log(SearchOppRes);
-            console.log("id: "+SearchOppRes.opportunities[0].id);
-            if (SearchOppRes.opportunities[0].id) {
-                console.log("true");
-                console.log("OLD Pipline: " + SearchOppRes.opportunities[0].pipelineId);
-                console.log("NEW Pipline: " + pipelineId);
-                await updateAllOpp(
-                    SearchOppRes.opportunities[0].id,
-                    pipelineId,
-                    stageId,
-                    status,
-                    req.body.assigned_to,
-                    req.body.enrolled_debt
-                );
-                console.log(updateOppRes);
-                await createAccessTokenFromRefresh();
-                console.log("Opportunity Updated Successfully");
-                res.json({msg: "Opportunity Updated Successfully"});
-            } else {
-                console.log("false");
-                NewOpportunityData = {
-                    pipelineId: pipelineId,
-                    locationId: locationId,
-                    name: 'Opportunity',
-                    pipelineStageId: stageId,
-                    status: status,
-                    contactId: ContactRes.contact.id,
-                    monetaryValue: parseInt(req.body.enrolled_debt),
-                    assignedTo: req.body.assigned_to
-                };
-                await createOpportunity(NewOpportunityData);
-                await createAccessTokenFromRefresh();
-                if (OppRes) {
-                    console.log("Opportunity Created Successfully");
-                    res.json({msg: "Opportunity Created Successfully"});
-                } else {
-                    console.log("Sorry, Something went wrong");
-                    res.json({msg: "Sorry, Something went wrong"});
-                }
+                console.log("Contact Not Created, Somthing went wrong!");
             }
         } else {
-            console.log("Opportunity Already Exists");
-            res.json({msg: "Opportunity Already Exists"});
-        }
+            console.log("Contact Founded");
+            delete NewContactData.locationId;
+            await updateContact(NewContactData, SearchContact.id);
+            await createAccessTokenFromRefresh();
+            if (updateContactRes.succeded) {
+                console.log("Contact Updated Successfully");
+                console.log(updateContactRes);
+                console.log(updateContactRes.contact.customFields);
+                ContactIDFromCU = updateContactRes.contact.id;
+                await RunOpp(updateContactRes.contact.id);
+            } else {
+                console.log("Contact Not Updated, Somthing went wrong!");
+            }
+        };
+        async function RunOpp(ContactIDFromCU) {
+            if (ContactIDFromCU) {
+                await searchOpportunity(ContactIDFromCU);
+                await createAccessTokenFromRefresh();
+                if (SearchOppRes.opportunities.length === 0) {
+                    console.log("Opportunity Not Found");
+                    NewContactData.contactId = ContactIDFromCU;
+                    await createOpportunity(NewOpportunityData);
+                    await createAccessTokenFromRefresh();
+                    if (OppRes) {
+                        console.log("Opportunity Created Successfully");
+                        console.log(OppRes);
+                        res.json({msg: "Opportunity Created Successfully"});
+                    } else {
+                        console.log("Opportunity Not Created, Somthing went wrong!");
+                        res.json({msg: "Opportunity Not Created, Somthing went wrong!"});
+                    }
+                } else if (SearchOppRes.opportunities[0].id) {
+                    console.log("Opportunity Found");
+                    console.log("OLD Pipline: " + SearchOppRes.opportunities[0].pipelineId);
+                    console.log("NEW Pipline: " + pipelineId);
+                    delete NewOpportunityData.locationId;
+                    await updateOpp(NewOpportunityData,SearchOppRes.opportunities[0].id);
+                    await createAccessTokenFromRefresh();
+                    if (updateOppRes) {
+                        console.log("Opportunity Updated Successfully");
+                        console.log(updateOppRes);
+                        res.json({msg: "Opportunity Updated Successfully"});
+                    } else {
+                        console.log("Opportunity Not Updated, Somthing went wrong!");
+                        res.json({msg: "Opportunity Not Updated, Somthing went wrong!"});
+                    }
+                }
+            }
+        };
         await createAccessTokenFromRefresh();
         console.log("ALL Operations Done Successfully");
     }
