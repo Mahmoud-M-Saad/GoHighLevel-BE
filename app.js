@@ -109,17 +109,18 @@ async function upsertContact(NewContactData) {
             console.log("Contact Added Successfully");
         }
         console.log("Contact upserted Successfully", upsertContactReq.data);
+        console.log("customFields: ", upsertContactReq.data.contact.customFields);
         ContactRes = upsertContactReq.data;
     } catch (error) {
         console.error("Error From upsertContact function: ", error);
     }
 };
-async function upsertOpportunity(NewOpportunityData) {
+async function createOpportunity(NewOpportunityData) {
     Tokens = JSON.parse(readFile());
     try {
         const upsertOppReq = await axios.request({
             method: 'POST',
-            url: 'https://services.leadconnectorhq.com/opportunities/upsert',
+            url: 'https://services.leadconnectorhq.com/opportunities/',
             headers: {
                 Authorization: `Bearer ${Tokens.access_token}`,
                 Version: '2021-07-28',
@@ -136,7 +137,7 @@ async function upsertOpportunity(NewOpportunityData) {
         console.log("Opportunity upserted Successfully", upsertOppReq.data);
         OppRes = upsertOppReq.data;
     } catch (error) {
-        console.error("Error From upsertOpportunity function: ", error);
+        console.error("Error From createOpportunity function: ", error);
     }
 };
 async function searchOpportunity(contactID) {
@@ -184,7 +185,7 @@ async function updateAllOpp(
                 pipelineStageId: stageId,
                 status: status,
                 assignedTo: assigned_to || null,
-                monetaryValue: monetaryValue
+                monetaryValue: parseInt(monetaryValue)
             }
         });
         updateOppRes = updateOppReq.data;
@@ -502,13 +503,14 @@ app.post('/upsertContact', (req, res) => {
             NewOpportunityData = {
                 pipelineId: pipelineId,
                 locationId: locationId,
+                name: 'Opportunity',
                 pipelineStageId: stageId,
-                contactId: ContactRes.contact.id,
                 status: status,
-                assignedTo: req.body.assigned_to || null,
-                monetaryValue: req.body.enrolled_debt || null
+                contactId: ContactRes.contact.id,
+                monetaryValue: parseInt(req.body.enrolled_debt),
+                assignedTo: req.body.assigned_to
             };
-            await upsertOpportunity(NewOpportunityData);
+            await createOpportunity(NewOpportunityData);
             await createAccessTokenFromRefresh();
             if (OppRes) {
                 res.json({msg: "Opportunity Created Successfully"});
@@ -537,13 +539,14 @@ app.post('/upsertContact', (req, res) => {
                 NewOpportunityData = {
                     pipelineId: pipelineId,
                     locationId: locationId,
+                    name: 'Opportunity',
                     pipelineStageId: stageId,
-                    contactId: ContactRes.contact.id,
                     status: status,
-                    assignedTo: req.body.assigned_to || null,
-                    monetaryValue: req.body.enrolled_debt || null
+                    contactId: ContactRes.contact.id,
+                    monetaryValue: parseInt(req.body.enrolled_debt),
+                    assignedTo: req.body.assigned_to
                 };
-                await upsertOpportunity(NewOpportunityData);
+                await createOpportunity(NewOpportunityData);
                 await createAccessTokenFromRefresh();
                 if (OppRes) {
                     res.json({msg: "Opportunity Created Successfully"});
