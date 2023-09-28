@@ -473,7 +473,7 @@ app.post('/upsertContact', (req, res) => {
         "email": req.body.email,
         "locationId": locationId,
         "phone": req.body.phone,
-        "address1": req.body.address,
+        "address1": req.body.address1,
         "city": req.body.city,
         "state": req.body.state,
         "postalCode": req.body.zip,
