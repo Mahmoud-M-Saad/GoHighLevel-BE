@@ -5,12 +5,12 @@ const app = express();
 const axios = require('axios').default;
 // Fixed Data
 const locationId = "8KyubGi8XhoKHCpIvzGp";
-// ---- Testing Client ---- const client_id =
-// "65097ea78ef2c94808317db6-lmt7okly"; const client_secret =
-// "4354e6ce-6dcd-4f4a-9f45-5a278177fbfe";
-// ------------------------
-const client_id = "650477d15e0035fbc8737c87-lmkrakx4";
-const client_secret = "92867618-14e0-4392-961d-a5fbc4502780";
+// --------------------------------------------
+const client_id = "65097ea78ef2c94808317db6-lmt7okly";
+const client_secret = "4354e6ce-6dcd-4f4a-9f45-5a278177fbfe";
+// --------------------------------------------
+// const client_id = "650477d15e0035fbc8737c87-lmkrakx4";
+// const client_secret = "92867618-14e0-4392-961d-a5fbc4502780";
 // ------------------------
 const {URLSearchParams} = require('url');
 app.use(bodyParser.json());
@@ -184,7 +184,7 @@ async function updateAllOpp(
                 pipelineId: NewPipLine,
                 pipelineStageId: stageId,
                 status: status,
-                assignedTo: assigned_to || null,
+                // assignedTo: assigned_to || null,
                 monetaryValue: parseInt(monetaryValue)
             }
         });
@@ -201,13 +201,15 @@ app.post('/upsertContact', (req, res) => {
     switch (req.body.stage) {
         case "Lead":
         case "Lost":
+            case "Not Workable":
+            case "Sales Pipeline":
             pipelineId = "Y6FEUB7ogzVp9NGqOEGp";
             break;
         case "Underwriting":
             pipelineId = "c0tkU2ao6U93GT84Sx4h";
             break;
-        case "Not Workable":
-            pipelineId = "Y6FEUB7ogzVp9NGqOEGp";
+        case "Lead Qualification":
+            pipelineId = "FD5dsMgfF109RZjtyPze";
             break;
         case "Unable To Contact":
             pipelineId = "sTLqxN8vtNtbEC4qnHde";
@@ -430,7 +432,7 @@ app.post('/upsertContact', (req, res) => {
         case "Duplicate":
         case "Do Not Call":
         case "Attempted Contact 2":
-            status = "abandon";
+            status = "abandoned";
             break;
         case "Active - Clarity":
         case "Initial Draft Pending":
@@ -508,20 +510,24 @@ app.post('/upsertContact', (req, res) => {
                 status: status,
                 contactId: ContactRes.contact.id,
                 monetaryValue: parseInt(req.body.enrolled_debt),
-                assignedTo: req.body.assigned_to
+                // assignedTo: req.body.assigned_to
             };
             await createOpportunity(NewOpportunityData);
             await createAccessTokenFromRefresh();
             if (OppRes) {
+                console.log("Opportunity Created Successfully");
                 res.json({msg: "Opportunity Created Successfully"});
             } else {
+                console.log("Sorry, Something went wrong");
                 res.json({msg: "Sorry, Something went wrong"});
             }
         } else if (ContactRes.new === false) {
             await searchOpportunity(ContactRes.contact.id);
             await createAccessTokenFromRefresh();
             console.log(SearchOppRes);
-            if (SearchOppRes.opportunities.id) {
+            console.log("id: "+SearchOppRes.opportunities[0].id);
+            if (SearchOppRes.opportunities[0].id) {
+                console.log("true");
                 console.log("OLD Pipline: " + SearchOppRes.opportunities[0].pipelineId);
                 console.log("NEW Pipline: " + pipelineId);
                 await updateAllOpp(
@@ -534,8 +540,10 @@ app.post('/upsertContact', (req, res) => {
                 );
                 console.log(updateOppRes);
                 await createAccessTokenFromRefresh();
+                console.log("Opportunity Updated Successfully");
                 res.json({msg: "Opportunity Updated Successfully"});
             } else {
+                console.log("false");
                 NewOpportunityData = {
                     pipelineId: pipelineId,
                     locationId: locationId,
@@ -544,17 +552,20 @@ app.post('/upsertContact', (req, res) => {
                     status: status,
                     contactId: ContactRes.contact.id,
                     monetaryValue: parseInt(req.body.enrolled_debt),
-                    assignedTo: req.body.assigned_to
+                    // assignedTo: req.body.assigned_to
                 };
                 await createOpportunity(NewOpportunityData);
                 await createAccessTokenFromRefresh();
                 if (OppRes) {
+                    console.log("Opportunity Created Successfully");
                     res.json({msg: "Opportunity Created Successfully"});
                 } else {
+                    console.log("Sorry, Something went wrong");
                     res.json({msg: "Sorry, Something went wrong"});
                 }
             }
         } else {
+            console.log("Opportunity Already Exists");
             res.json({msg: "Opportunity Already Exists"});
         }
         await createAccessTokenFromRefresh();
