@@ -532,62 +532,70 @@ app.post('/upsertContact', (req, res) => {
             console.log("Contact Not exsits");
             await createContact(NewContactData);
             await createAccessTokenFromRefresh();
-            if (createContactRes.contact.id) {
-                console.log("Contact Created Successfully");
-                console.log(createContactRes);
-                console.log(createContactRes.contact.customFields);
-                ContactIDFromCU = createContactRes.contact.id;
-                await RunOpp(createContactRes.contact.id);
-            } else {
-                console.log("Contact Not Created, Somthing went wrong!");
-            }
+            console.log(createContactRes);
+            if(createContactRes){
+                if (createContactRes.contact.id) {
+                    console.log("Contact Created Successfully");
+                    console.log(createContactRes);
+                    console.log(createContactRes.contact.customFields);
+                    ContactIDFromCU = createContactRes.contact.id;
+                    await RunOpp(createContactRes.contact.id);
+                }} else {
+                    console.log("Contact Not Created, Somthing went wrong!");
+                }
+            
         } else {
             console.log("Contact Founded");
             delete NewContactData.locationId;
             await updateContact(NewContactData, SearchContact.id);
             await createAccessTokenFromRefresh();
-            if (updateContactRes.succeded) {
-                console.log("Contact Updated Successfully");
-                console.log(updateContactRes);
-                console.log(updateContactRes.contact.customFields);
-                ContactIDFromCU = updateContactRes.contact.id;
-                await RunOpp(updateContactRes.contact.id);
-            } else {
-                console.log("Contact Not Updated, Somthing went wrong!");
-            }
+            if(updateContactRes){
+                if (updateContactRes.succeded) {
+                    console.log("Contact Updated Successfully");
+                    console.log(updateContactRes);
+                    console.log(updateContactRes.contact.customFields);
+                    ContactIDFromCU = updateContactRes.contact.id;
+                    await RunOpp(updateContactRes.contact.id);
+                }} else {
+                    console.log("Contact Not Updated, Somthing went wrong!");
+                }           
         };
         async function RunOpp(ContactIDFromCU) {
             if (ContactIDFromCU) {
                 await searchOpportunity(ContactIDFromCU);
                 await createAccessTokenFromRefresh();
-                if (SearchOppRes.opportunities.length === 0) {
-                    console.log("Opportunity Not Found");
-                    NewContactData.contactId = ContactIDFromCU;
-                    await createOpportunity(NewOpportunityData);
-                    await createAccessTokenFromRefresh();
-                    if (OppRes) {
-                        console.log("Opportunity Created Successfully");
-                        console.log(OppRes);
-                        res.json({msg: "Opportunity Created Successfully"});
-                    } else {
-                        console.log("Opportunity Not Created, Somthing went wrong!");
-                        res.json({msg: "Opportunity Not Created, Somthing went wrong!"});
+                if(SearchOppRes){
+                    if (SearchOppRes.opportunities.length === 0) {
+                        console.log("Opportunity Not Found");
+                        NewContactData.contactId = ContactIDFromCU;
+                        await createOpportunity(NewOpportunityData);
+                        await createAccessTokenFromRefresh();
+                        if (OppRes) {
+                            console.log("Opportunity Created Successfully");
+                            console.log(OppRes);
+                            res.json({msg: "Opportunity Created Successfully"});
+                        } else {
+                            console.log("Opportunity Not Created, Somthing went wrong!");
+                            res.json({msg: "Opportunity Not Created, Somthing went wrong!"});
+                        }
+                    } else if (SearchOppRes.opportunities[0].id) {
+                        console.log("Opportunity Found");
+                        console.log("OLD Pipline: " + SearchOppRes.opportunities[0].pipelineId);
+                        console.log("NEW Pipline: " + pipelineId);
+                        delete NewOpportunityData.locationId;
+                        await updateOpp(NewOpportunityData,SearchOppRes.opportunities[0].id);
+                        await createAccessTokenFromRefresh();
+                        if (updateOppRes) {
+                            console.log("Opportunity Updated Successfully");
+                            console.log(updateOppRes);
+                            res.json({msg: "Opportunity Updated Successfully"});
+                        } else {
+                            console.log("Opportunity Not Updated, Somthing went wrong!");
+                            res.json({msg: "Opportunity Not Updated, Somthing went wrong!"});
+                        }
                     }
-                } else if (SearchOppRes.opportunities[0].id) {
-                    console.log("Opportunity Found");
-                    console.log("OLD Pipline: " + SearchOppRes.opportunities[0].pipelineId);
-                    console.log("NEW Pipline: " + pipelineId);
-                    delete NewOpportunityData.locationId;
-                    await updateOpp(NewOpportunityData,SearchOppRes.opportunities[0].id);
-                    await createAccessTokenFromRefresh();
-                    if (updateOppRes) {
-                        console.log("Opportunity Updated Successfully");
-                        console.log(updateOppRes);
-                        res.json({msg: "Opportunity Updated Successfully"});
-                    } else {
-                        console.log("Opportunity Not Updated, Somthing went wrong!");
-                        res.json({msg: "Opportunity Not Updated, Somthing went wrong!"});
-                    }
+                }else{
+                    console.log("SearchOppRes no exists");
                 }
             }
         };
