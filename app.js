@@ -524,6 +524,7 @@ app.post('/upsertContact', (req, res) => {
         "monetaryValue": parseInt(req.body.enrolled_debt),
         // "assignedTo": req.body.assigned_to
     };
+    if(!(req.body.enrolled_debt)){delete NewContactData.monetaryValue}
     async function runAsyncFunctionsInOrder() {
         await createAccessTokenFromRefresh();
         await searchContact(req.body.phone, req.body.email);
@@ -534,7 +535,7 @@ app.post('/upsertContact', (req, res) => {
             if (createContactRes.contact.id) {
                 console.log("Contact Created Successfully");
                 console.log(createContactRes);
-                console.log(updateContactRes.contact.customFields);
+                console.log(createContactRes.contact.customFields);
                 ContactIDFromCU = createContactRes.contact.id;
                 await RunOpp(createContactRes.contact.id);
             } else {
