@@ -485,15 +485,18 @@ app.post('/upsertContact', (req, res) => {
                 "id": "r6MLzyK11mGr9yeqzeET",
                 "key": "contact.submission_date",
                 "field_value": req.body.sub_date
-            }, {
-                "id": "UexXb4dUmBFilIedw5sl",
-                "key": "contact.returned_date",
-                "field_value": req.body.return_date
-            }, {
-                "id": "3vuPBvMDIbhJTUWwjRSv",
-                "key": "contact.enrolled_date",
-                "field_value": req.body.enrolled_date
-            }, {
+            },
+            //  {
+            //     "id": "UexXb4dUmBFilIedw5sl",
+            //     "key": "contact.returned_date",
+            //     "field_value": req.body.return_date
+            // },
+            //  {
+            //     "id": "3vuPBvMDIbhJTUWwjRSv",
+            //     "key": "contact.enrolled_date",
+            //     "field_value": req.body.enrolled_date
+            // },
+             {
                 "id": "aJ1AaaTeblIcbJalrRhu",
                 "key": "contact.first_pay_date",
                 "field_value": req.body.first_pay
@@ -505,11 +508,12 @@ app.post('/upsertContact', (req, res) => {
                 "id": "jAMguF0Fidj60mtdBD8M",
                 "key": "contact.forth_id",
                 "field_value": req.body.customer_id
-            }, {
-                "id": "t78ZnIO9ypY4LYT2ETFk",
-                "key": "contact.last_credit_pulled_date",
-                "field_value": req.body.last_credit_date
-            }
+            },
+            //  {
+            //     "id": "t78ZnIO9ypY4LYT2ETFk",
+            //     "key": "contact.last_credit_pulled_date",
+            //     "field_value": req.body.last_credit_date
+            // }
         ],
         "source": req.body.data_source,
         "country": req.body.contry || null,
