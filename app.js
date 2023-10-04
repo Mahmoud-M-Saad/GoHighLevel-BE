@@ -519,13 +519,14 @@ app.post('/upsertContact', (req, res) => {
         "country": req.body.contry || null,
         "companyName": req.body.company_name || null
     };
-    let NewOpportunityData = {
+    let monetaryValue = req.body.enrolled_debt
+        let NewOpportunityData = {
         "pipelineId": pipelineId,
         "locationId": locationId,
         "name": "Opportunity",
         "pipelineStageId": stageId,
         "status": status,
-        "monetaryValue": parseInt(req.body.enrolled_debt),
+        "monetaryValue": parseFloat(monetaryValue.replace(/,/g, '')),
         // "assignedTo": req.body.assigned_to
     };
     if(!(req.body.enrolled_debt)){delete NewContactData.monetaryValue}
