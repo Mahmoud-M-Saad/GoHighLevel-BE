@@ -484,7 +484,7 @@ app.post('/upsertContact', (req, res) => {
             {
                 "id": "r6MLzyK11mGr9yeqzeET",
                 "key": "contact.submission_date",
-                "field_value": req.body.sub_date
+                "field_value": req.body.sub_date || " "
             },
             //  {
             //     "id": "UexXb4dUmBFilIedw5sl",
