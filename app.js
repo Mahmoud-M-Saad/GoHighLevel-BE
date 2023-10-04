@@ -491,11 +491,11 @@ app.post('/upsertContact', (req, res) => {
             //     "key": "contact.returned_date",
             //     "field_value": req.body.return_date
             // },
-            //  {
-            //     "id": "3vuPBvMDIbhJTUWwjRSv",
-            //     "key": "contact.enrolled_date",
-            //     "field_value": req.body.enrolled_date
-            // },
+             {
+                "id": "3vuPBvMDIbhJTUWwjRSv",
+                "key": "contact.enrolled_date",
+                "field_value": req.body.enrolled_date
+            },
              {
                 "id": "aJ1AaaTeblIcbJalrRhu",
                 "key": "contact.first_pay_date",
@@ -509,11 +509,11 @@ app.post('/upsertContact', (req, res) => {
                 "key": "contact.forth_id",
                 "field_value": req.body.customer_id
             },
-            //  {
-            //     "id": "t78ZnIO9ypY4LYT2ETFk",
-            //     "key": "contact.last_credit_pulled_date",
-            //     "field_value": req.body.last_credit_date
-            // }
+             {
+                "id": "t78ZnIO9ypY4LYT2ETFk",
+                "key": "contact.last_credit_pulled_date",
+                "field_value": req.body.last_credit_date
+            }
         ],
         "source": req.body.data_source,
         "country": req.body.contry || null,
@@ -526,7 +526,7 @@ app.post('/upsertContact', (req, res) => {
         "pipelineStageId": stageId,
         "status": status,
         "monetaryValue": parseInt(req.body.enrolled_debt),
-        // "assignedTo": req.body.assigned_to
+        "assignedTo": req.body.assigned_to
     };
     if(!(req.body.enrolled_debt)){delete NewContactData.monetaryValue}
     async function runAsyncFunctionsInOrder() {
@@ -599,7 +599,7 @@ app.post('/upsertContact', (req, res) => {
                         }
                     }
                 }else{
-                    console.log("SearchOppRes no exists");
+                    console.log("SearchOppRes not exists");
                 }
             }
         };
