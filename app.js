@@ -526,7 +526,7 @@ app.post('/upsertContact', (req, res) => {
         "pipelineStageId": stageId,
         "status": status,
         "monetaryValue": parseInt(req.body.enrolled_debt),
-        "assignedTo": req.body.assigned_to
+        // "assignedTo": req.body.assigned_to
     };
     if(!(req.body.enrolled_debt)){delete NewContactData.monetaryValue}
     async function runAsyncFunctionsInOrder() {
