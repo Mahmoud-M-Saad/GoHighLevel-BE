@@ -523,7 +523,6 @@ app.post('/upsertContact', (req, res) => {
         let NewOpportunityData = {
         "pipelineId": pipelineId,
         "locationId": locationId,
-        "name": "Opportunity",
         "pipelineStageId": stageId,
         "status": status,
         "monetaryValue": parseFloat(monetaryValue.replace(/,/g, '')),
@@ -573,6 +572,7 @@ app.post('/upsertContact', (req, res) => {
                     if (SearchOppRes.opportunities.length === 0) {
                         console.log("Opportunity Not Found");
                         NewOpportunityData.contactId = ContactIDFromCU;
+                        NewOpportunityData.name = req.body.first_name + " " + req.body.last_name + " - " + ContactIDFromCU  ,
                         await createOpportunity(NewOpportunityData);
                         await createAccessTokenFromRefresh();
                         if (OppRes) {
@@ -588,6 +588,7 @@ app.post('/upsertContact', (req, res) => {
                         console.log("OLD Pipline: " + SearchOppRes.opportunities[0].pipelineId);
                         console.log("NEW Pipline: " + pipelineId);
                         delete NewOpportunityData.locationId;
+                        NewOpportunityData.name = req.body.first_name + " " + req.body.last_name + " - " + ContactIDFromCU  ,
                         await updateOpp(NewOpportunityData,SearchOppRes.opportunities[0].id);
                         await createAccessTokenFromRefresh();
                         if (updateOppRes) {
