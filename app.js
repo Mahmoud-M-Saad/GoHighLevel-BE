@@ -6,11 +6,11 @@ const axios = require('axios').default;
 // Fixed Data
 const locationId = "8KyubGi8XhoKHCpIvzGp";
 // --------------------------------------------
-// const client_id = "65097ea78ef2c94808317db6-lmt7okly";
-// const client_secret = "4354e6ce-6dcd-4f4a-9f45-5a278177fbfe";
+const client_id = "65097ea78ef2c94808317db6-lmt7okly";
+const client_secret = "4354e6ce-6dcd-4f4a-9f45-5a278177fbfe";
 // --------------------------------------------
-const client_id = "650477d15e0035fbc8737c87-lmkrakx4";
-const client_secret = "92867618-14e0-4392-961d-a5fbc4502780";
+// const client_id = "650477d15e0035fbc8737c87-lmkrakx4"; const client_secret =
+// "92867618-14e0-4392-961d-a5fbc4502780";
 // ------------------------
 const {URLSearchParams} = require('url');
 app.use(bodyParser.json());
@@ -192,7 +192,7 @@ async function createOpportunity(NewOpportunityData) {
         console.error("Error From createOpportunity function: ", error);
     }
 };
-async function updateOpp(NewOpportunityData,oppId) {
+async function updateOpp(NewOpportunityData, oppId) {
     Tokens = JSON.parse(readFile());
     try {
         const updateOppReq = await axios.request({
@@ -466,6 +466,13 @@ app.post('/upsertContact', (req, res) => {
             status = null;
             break;
     };
+    let sub_date;
+    if (req.body.sub_date === '11/30/-0001') {
+        console.log(true);
+        sub_date = null ;
+    } else {
+        sub_date = req.body.sub_date;
+    }
     let NewContactData = {
         "firstName": req.body.first_name,
         "lastName": req.body.last_name,
@@ -484,19 +491,15 @@ app.post('/upsertContact', (req, res) => {
             {
                 "id": "r6MLzyK11mGr9yeqzeET",
                 "key": "contact.submission_date",
-                "field_value": req.body.sub_date || " "
+                "field_value": sub_date
             },
-            //  {
-            //     "id": "UexXb4dUmBFilIedw5sl",
-            //     "key": "contact.returned_date",
-            //     "field_value": req.body.return_date
-            // },
-             {
+            // {     "id": "UexXb4dUmBFilIedw5sl",     "key": "contact.returned_date",
+            // "field_value": req.body.return_date },
+            {
                 "id": "3vuPBvMDIbhJTUWwjRSv",
                 "key": "contact.enrolled_date",
                 "field_value": req.body.enrolled_date
-            },
-             {
+            }, {
                 "id": "aJ1AaaTeblIcbJalrRhu",
                 "key": "contact.first_pay_date",
                 "field_value": req.body.first_pay
@@ -508,8 +511,7 @@ app.post('/upsertContact', (req, res) => {
                 "id": "jAMguF0Fidj60mtdBD8M",
                 "key": "contact.forth_id",
                 "field_value": req.body.customer_id
-            },
-             {
+            }, {
                 "id": "t78ZnIO9ypY4LYT2ETFk",
                 "key": "contact.last_credit_pulled_date",
                 "field_value": req.body.last_credit_date
@@ -520,15 +522,18 @@ app.post('/upsertContact', (req, res) => {
         "companyName": req.body.company_name || null
     };
     let monetaryValue = req.body.enrolled_debt
-        let NewOpportunityData = {
+    let NewOpportunityData = {
         "pipelineId": pipelineId,
         "locationId": locationId,
+        "name": req.body.first_name + " " + req.body.last_name + " - " + req.body.customer_id,
         "pipelineStageId": stageId,
         "status": status,
         "monetaryValue": parseFloat(monetaryValue.replace(/,/g, '')),
         // "assignedTo": req.body.assigned_to
     };
-    if(!(req.body.enrolled_debt)){delete NewContactData.monetaryValue}
+    if (!(req.body.enrolled_debt)) {
+        delete NewContactData.monetaryValue
+    }
     async function runAsyncFunctionsInOrder() {
         await createAccessTokenFromRefresh();
         await searchContact(req.body.phone, req.body.email);
@@ -537,42 +542,43 @@ app.post('/upsertContact', (req, res) => {
             await createContact(NewContactData);
             await createAccessTokenFromRefresh();
             console.log(createContactRes);
-            if(createContactRes){
+            if (createContactRes) {
                 if (createContactRes.contact.id) {
                     console.log("Contact Created Successfully");
                     console.log(createContactRes);
                     console.log(createContactRes.contact.customFields);
                     ContactIDFromCU = createContactRes.contact.id;
                     await RunOpp(createContactRes.contact.id);
-                }} else {
-                    console.log("Contact Not Created, Somthing went wrong!");
                 }
-            
+            } else {
+                console.log("Contact Not Created, Somthing went wrong!");
+            }
+
         } else {
             console.log("Contact Founded");
             delete NewContactData.locationId;
             await updateContact(NewContactData, SearchContact.id);
             await createAccessTokenFromRefresh();
-            if(updateContactRes){
+            if (updateContactRes) {
                 if (updateContactRes.succeded) {
                     console.log("Contact Updated Successfully");
                     console.log(updateContactRes);
                     console.log(updateContactRes.contact.customFields);
                     ContactIDFromCU = updateContactRes.contact.id;
                     await RunOpp(updateContactRes.contact.id);
-                }} else {
-                    console.log("Contact Not Updated, Somthing went wrong!");
-                }           
+                }
+            } else {
+                console.log("Contact Not Updated, Somthing went wrong!");
+            }
         };
         async function RunOpp(ContactIDFromCU) {
             if (ContactIDFromCU) {
                 await searchOpportunity(ContactIDFromCU);
                 await createAccessTokenFromRefresh();
-                if(SearchOppRes){
+                if (SearchOppRes) {
                     if (SearchOppRes.opportunities.length === 0) {
                         console.log("Opportunity Not Found");
                         NewOpportunityData.contactId = ContactIDFromCU;
-                        NewOpportunityData.name = req.body.first_name + " " + req.body.last_name + " - " + ContactIDFromCU  ,
                         await createOpportunity(NewOpportunityData);
                         await createAccessTokenFromRefresh();
                         if (OppRes) {
@@ -588,8 +594,7 @@ app.post('/upsertContact', (req, res) => {
                         console.log("OLD Pipline: " + SearchOppRes.opportunities[0].pipelineId);
                         console.log("NEW Pipline: " + pipelineId);
                         delete NewOpportunityData.locationId;
-                        NewOpportunityData.name = req.body.first_name + " " + req.body.last_name + " - " + ContactIDFromCU  ,
-                        await updateOpp(NewOpportunityData,SearchOppRes.opportunities[0].id);
+                        await updateOpp(NewOpportunityData, SearchOppRes.opportunities[0].id);
                         await createAccessTokenFromRefresh();
                         if (updateOppRes) {
                             console.log("Opportunity Updated Successfully");
@@ -600,11 +605,12 @@ app.post('/upsertContact', (req, res) => {
                             res.json({msg: "Opportunity Not Updated, Somthing went wrong!"});
                         }
                     }
-                }else{
+                } else {
                     console.log("SearchOppRes not exists");
                 }
             }
         };
+
         await createAccessTokenFromRefresh();
         console.log("ALL Operations Done Successfully");
     }
