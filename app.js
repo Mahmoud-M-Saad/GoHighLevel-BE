@@ -527,6 +527,7 @@ app.post('/upsertContact', (req, res) => {
         "locationId": locationId,
         "name": req.body.first_name + " " + req.body.last_name + " - " + req.body.customer_id,
         "pipelineStageId": stageId,
+        "source": req.body.campaign,
         "status": status,
         "monetaryValue": parseFloat(monetaryValue.replace(/,/g, '')),
         // "assignedTo": req.body.assigned_to
