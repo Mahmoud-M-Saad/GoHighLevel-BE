@@ -10,7 +10,7 @@ const locationId = "8KyubGi8XhoKHCpIvzGp";
 // const client_secret = "4354e6ce-6dcd-4f4a-9f45-5a278177fbfe";
 // --------------------------------------------
 const client_id = "650477d15e0035fbc8737c87-lmkrakx4";
- const client_secret = "92867618-14e0-4392-961d-a5fbc4502780";
+const client_secret = "92867618-14e0-4392-961d-a5fbc4502780";
 // ------------------------
 const {URLSearchParams} = require('url');
 app.use(bodyParser.json());
@@ -215,6 +215,15 @@ async function updateOpp(NewOpportunityData, oppId) {
 app.post('/upsertContact', (req, res) => {
     console.log("The Data Reseved is: ");
     console.log(req.body);
+    fs.appendFileSync('./reqBody.log', JSON.stringify([req.body]));
+    let ResAfterDone = {
+        Contact: "",
+        ContactFound: "",
+        ContactUpdate: "",
+        Opportunity: "",
+        OpportunityFound: "",
+        OpportunityUpdate: ""
+    }
     let pipelineId;
     switch (req.body.stage) {
         case "Lead":
@@ -468,8 +477,7 @@ app.post('/upsertContact', (req, res) => {
     };
     let sub_date;
     if (req.body.sub_date === '11/30/-0001') {
-        console.log(true);
-        sub_date = null ;
+        sub_date = null;
     } else {
         sub_date = req.body.sub_date;
     }
@@ -540,13 +548,17 @@ app.post('/upsertContact', (req, res) => {
         await searchContact(req.body.phone, req.body.email);
         if (SearchContact === null) {
             console.log("Contact Not exsits");
+            ResAfterDone.ContactFound = "Contact Not exsits";
             await createContact(NewContactData);
             await createAccessTokenFromRefresh();
             console.log(createContactRes);
+            ResAfterDone.Contact = createContactRes;
             if (createContactRes) {
                 if (createContactRes.contact.id) {
                     console.log("Contact Created Successfully");
+                    ResAfterDone.ContactUpdate = "Contact Created Successfully";
                     console.log(createContactRes);
+                    ResAfterDone.Contact = createContactRes;
                     console.log(createContactRes.contact.customFields);
                     ContactIDFromCU = createContactRes.contact.id;
                     await RunOpp(createContactRes.contact.id);
@@ -557,13 +569,16 @@ app.post('/upsertContact', (req, res) => {
 
         } else {
             console.log("Contact Founded");
+            ResAfterDone.ContactFound = "Contact Founded";
             delete NewContactData.locationId;
             await updateContact(NewContactData, SearchContact.id);
             await createAccessTokenFromRefresh();
             if (updateContactRes) {
                 if (updateContactRes.succeded) {
                     console.log("Contact Updated Successfully");
+                    ResAfterDone.ContactUpdate = "Contact Updated Successfully";
                     console.log(updateContactRes);
+                    ResAfterDone.Contact = updateContactRes;
                     console.log(updateContactRes.contact.customFields);
                     ContactIDFromCU = updateContactRes.contact.id;
                     await RunOpp(updateContactRes.contact.id);
@@ -579,19 +594,24 @@ app.post('/upsertContact', (req, res) => {
                 if (SearchOppRes) {
                     if (SearchOppRes.opportunities.length === 0) {
                         console.log("Opportunity Not Found");
+                        ResAfterDone.OpportunityFound = "Opportunity Not Found";
                         NewOpportunityData.contactId = ContactIDFromCU;
                         await createOpportunity(NewOpportunityData);
                         await createAccessTokenFromRefresh();
                         if (OppRes) {
                             console.log("Opportunity Created Successfully");
+                            ResAfterDone.OpportunityUpdate = "Opportunity Created Successfully";
                             console.log(OppRes);
+                            ResAfterDone.Opportunity = OppRes;
                             res.json({msg: "Opportunity Created Successfully"});
                         } else {
                             console.log("Opportunity Not Created, Somthing went wrong!");
+                            ResAfterDone.OpportunityUpdate = "Opportunity Not Created, Somthing went wrong!";
                             res.json({msg: "Opportunity Not Created, Somthing went wrong!"});
                         }
                     } else if (SearchOppRes.opportunities[0].id) {
                         console.log("Opportunity Found");
+                        ResAfterDone.OpportunityFound = "Opportunity Found"
                         console.log("OLD Pipline: " + SearchOppRes.opportunities[0].pipelineId);
                         console.log("NEW Pipline: " + pipelineId);
                         delete NewOpportunityData.locationId;
@@ -599,10 +619,13 @@ app.post('/upsertContact', (req, res) => {
                         await createAccessTokenFromRefresh();
                         if (updateOppRes) {
                             console.log("Opportunity Updated Successfully");
+                            ResAfterDone.OpportunityUpdate = "Opportunity Updated Successfully";
                             console.log(updateOppRes);
+                            ResAfterDone.Opportunity = updateOppRes;
                             res.json({msg: "Opportunity Updated Successfully"});
                         } else {
                             console.log("Opportunity Not Updated, Somthing went wrong!");
+                            ResAfterDone.OpportunityUpdate = "Opportunity Not Updated, Somthing went wrong!";
                             res.json({msg: "Opportunity Not Updated, Somthing went wrong!"});
                         }
                     }
@@ -611,7 +634,7 @@ app.post('/upsertContact', (req, res) => {
                 }
             }
         };
-
+        fs.appendFileSync('./Response.log', JSON.stringify([ResAfterDone]));
         await createAccessTokenFromRefresh();
         console.log("ALL Operations Done Successfully");
     }
