@@ -216,6 +216,17 @@ app.post('/upsertContact', (req, res) => {
     console.log("The Data Reseved is: ");
     console.log(req.body);
     fs.appendFileSync('./reqBody.log', JSON.stringify([req.body]));
+    let AllLogs = {
+        req:"",
+        Contact: "",
+        ContactFound: "",
+        ContactUpdate: "",
+        Opportunity: "",
+        OpportunityFound: "",
+        OpportunityUpdate: ""
+
+    };
+AllLogs.req = req.body
     let ResAfterDone = {
         Contact: "",
         ContactFound: "",
@@ -549,16 +560,20 @@ app.post('/upsertContact', (req, res) => {
         if (SearchContact === null) {
             console.log("Contact Not exsits");
             ResAfterDone.ContactFound = "Contact Not exsits";
+            AllLogs.ContactFound = "Contact Not exsits";
             await createContact(NewContactData);
             await createAccessTokenFromRefresh();
             console.log(createContactRes);
             ResAfterDone.Contact = createContactRes;
+            AllLogs.Contact = createContactRes;
             if (createContactRes) {
                 if (createContactRes.contact.id) {
                     console.log("Contact Created Successfully");
                     ResAfterDone.ContactUpdate = "Contact Created Successfully";
+                    AllLogs.ContactUpdate = "Contact Created Successfully";
                     console.log(createContactRes);
                     ResAfterDone.Contact = createContactRes;
+                    AllLogs.Contact = createContactRes;
                     console.log(createContactRes.contact.customFields);
                     ContactIDFromCU = createContactRes.contact.id;
                     await RunOpp(createContactRes.contact.id);
@@ -570,6 +585,7 @@ app.post('/upsertContact', (req, res) => {
         } else {
             console.log("Contact Founded");
             ResAfterDone.ContactFound = "Contact Founded";
+            AllLogs.ContactFound = "Contact Founded";
             delete NewContactData.locationId;
             await updateContact(NewContactData, SearchContact.id);
             await createAccessTokenFromRefresh();
@@ -577,8 +593,10 @@ app.post('/upsertContact', (req, res) => {
                 if (updateContactRes.succeded) {
                     console.log("Contact Updated Successfully");
                     ResAfterDone.ContactUpdate = "Contact Updated Successfully";
+                    AllLogs.ContactUpdate = "Contact Updated Successfully";
                     console.log(updateContactRes);
                     ResAfterDone.Contact = updateContactRes;
+                    AllLogs.Contact = updateContactRes;
                     console.log(updateContactRes.contact.customFields);
                     ContactIDFromCU = updateContactRes.contact.id;
                     await RunOpp(updateContactRes.contact.id);
@@ -595,23 +613,28 @@ app.post('/upsertContact', (req, res) => {
                     if (SearchOppRes.opportunities.length === 0) {
                         console.log("Opportunity Not Found");
                         ResAfterDone.OpportunityFound = "Opportunity Not Found";
+                        AllLogs.OpportunityFound = "Opportunity Not Found";
                         NewOpportunityData.contactId = ContactIDFromCU;
                         await createOpportunity(NewOpportunityData);
                         await createAccessTokenFromRefresh();
                         if (OppRes) {
                             console.log("Opportunity Created Successfully");
                             ResAfterDone.OpportunityUpdate = "Opportunity Created Successfully";
+                            AllLogs.OpportunityUpdate = "Opportunity Created Successfully";
                             console.log(OppRes);
                             ResAfterDone.Opportunity = OppRes;
+                            AllLogs.Opportunity = OppRes;
                             res.json({msg: "Opportunity Created Successfully"});
                         } else {
                             console.log("Opportunity Not Created, Somthing went wrong!");
                             ResAfterDone.OpportunityUpdate = "Opportunity Not Created, Somthing went wrong!";
+                            AllLogs.OpportunityUpdate = "Opportunity Not Created, Somthing went wrong!";
                             res.json({msg: "Opportunity Not Created, Somthing went wrong!"});
                         }
                     } else if (SearchOppRes.opportunities[0].id) {
                         console.log("Opportunity Found");
                         ResAfterDone.OpportunityFound = "Opportunity Found"
+                        AllLogs.OpportunityFound = "Opportunity Found"
                         console.log("OLD Pipline: " + SearchOppRes.opportunities[0].pipelineId);
                         console.log("NEW Pipline: " + pipelineId);
                         delete NewOpportunityData.locationId;
@@ -620,12 +643,15 @@ app.post('/upsertContact', (req, res) => {
                         if (updateOppRes) {
                             console.log("Opportunity Updated Successfully");
                             ResAfterDone.OpportunityUpdate = "Opportunity Updated Successfully";
+                            AllLogs.OpportunityUpdate = "Opportunity Updated Successfully";
                             console.log(updateOppRes);
                             ResAfterDone.Opportunity = updateOppRes;
+                            AllLogs.Opportunity = updateOppRes;
                             res.json({msg: "Opportunity Updated Successfully"});
                         } else {
                             console.log("Opportunity Not Updated, Somthing went wrong!");
                             ResAfterDone.OpportunityUpdate = "Opportunity Not Updated, Somthing went wrong!";
+                            AllLogs.OpportunityUpdate = "Opportunity Not Updated, Somthing went wrong!";
                             res.json({msg: "Opportunity Not Updated, Somthing went wrong!"});
                         }
                     }
@@ -635,6 +661,7 @@ app.post('/upsertContact', (req, res) => {
             }
         };
         fs.appendFileSync('./Response.log', JSON.stringify([ResAfterDone]));
+        fs.appendFileSync('./AllLOGS.log', JSON.stringify([AllLogs]));
         await createAccessTokenFromRefresh();
         console.log("ALL Operations Done Successfully");
     }
