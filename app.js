@@ -491,63 +491,69 @@ app.post('/upsertContact', (req, res) => {
     } else {
         sub_date = req.body.sub_date;
     }
+    let first_pay = null;
+    if (req.body.first_pay) {
+        first_pay = new Intl
+            .DateTimeFormat('en-US')
+            .format(new Date(Date.parse(req.body.first_pay)))
+    }
     let NewContactData = {
-        "firstName": req.body.first_name,
-        "lastName": req.body.last_name,
-        "name": req.body.first_name + " " + req.body.last_name,
-        "email": req.body.email,
+        "firstName": req.body.first_name || null,
+        "lastName": req.body.last_name || null,
+        "name": req.body.first_name + " " + req.body.last_name || null,
+        "email": req.body.email || null,
         "locationId": locationId,
-        "phone": req.body.phone,
-        "address1": req.body.address1,
-        "city": req.body.city,
-        "state": req.body.state,
-        "postalCode": req.body.zip,
+        "phone": req.body.phone || null,
+        "address1": req.body.address1 || null,
+        "city": req.body.city || null,
+        "state": req.body.state || null,
+        "postalCode": req.body.zip || null,
         "website": req.body.website || null,
         "timezone": req.body.timezone || null,
-        "dateOfBirth": req.body.dob,
+        "dateOfBirth": req.body.dob || null,
         "customFields": [
             {
                 "id": "r6MLzyK11mGr9yeqzeET",
                 "key": "contact.submission_date",
-                "field_value": sub_date
+                "field_value": sub_date || null
             },
             // {     "id": "UexXb4dUmBFilIedw5sl",     "key": "contact.returned_date",
             // "field_value": req.body.return_date },
             {
                 "id": "3vuPBvMDIbhJTUWwjRSv",
                 "key": "contact.enrolled_date",
-                "field_value": req.body.enrolled_date
+                "field_value": req.body.enrolled_date || null
             }, {
                 "id": "aJ1AaaTeblIcbJalrRhu",
                 "key": "contact.first_pay_date",
-                "field_value": req.body.first_pay
+                "field_value": first_pay
             }, {
                 "id": "ztxX3gIgfeMqgFCM8nmt",
                 "key": "contact.enrolled_debt",
-                "field_value": req.body.enrolled_debt
+                "field_value": req.body.enrolled_debt || null
             }, {
                 "id": "jAMguF0Fidj60mtdBD8M",
                 "key": "contact.forth_id",
-                "field_value": req.body.customer_id
+                "field_value": req.body.customer_id || null
             }, {
                 "id": "t78ZnIO9ypY4LYT2ETFk",
                 "key": "contact.last_credit_pulled_date",
-                "field_value": req.body.last_credit_date
+                "field_value": req.body.last_credit_date || null
             }
         ],
-        "source": req.body.data_source,
+        "source": req.body.data_source || null,
         "country": req.body.contry || null,
         "companyName": req.body.company_name || null
     };
     let monetaryValue = req.body.enrolled_debt
     let NewOpportunityData = {
-        "pipelineId": pipelineId,
+        "pipelineId": pipelineId || null,
         "locationId": locationId,
-        "name": req.body.first_name + " " + req.body.last_name + " - " + req.body.customer_id,
-        "pipelineStageId": stageId,
-        "source": req.body.campaign,
-        "status": status,
-        "monetaryValue": parseFloat(monetaryValue.replace(/,/g, '')),
+        "name": req.body.first_name + " " + req.body.last_name + " - " + req.body.customer_id || null,
+        "pipelineStageId": stageId || null,
+        "source": req.body.campaign || null,
+        "status": status || null,
+        "monetaryValue": parseFloat(monetaryValue.replace(/,/g, '')) || null,
         // "assignedTo": req.body.assigned_to
     };
     if (!(req.body.enrolled_debt)) {
@@ -555,134 +561,140 @@ app.post('/upsertContact', (req, res) => {
     }
     async function runAsyncFunctionsInOrder() {
         await createAccessTokenFromRefresh();
-        await searchContact(req.body.phone, req.body.email);
-        if (SearchContact === null) {
-            console.log("Contact Not exsits");
-            ResAfterDone.ContactFound = "Contact Not exsits";
-            AllLogs.ContactFound = "Contact Not exsits";
-            await createContact(NewContactData);
-            await createAccessTokenFromRefresh();
-            console.log(createContactRes);
-            ResAfterDone.Contact = createContactRes;
-            AllLogs.Contact = createContactRes;
-            if (createContactRes) {
-                if (createContactRes.contact.id) {
-                    console.log("Contact Created Successfully");
-                    ResAfterDone.ContactUpdate = "Contact Created Successfully";
-                    AllLogs.ContactUpdate = "Contact Created Successfully";
-                    console.log(createContactRes);
-                    ResAfterDone.Contact = createContactRes;
-                    AllLogs.Contact = createContactRes;
-                    console.log(createContactRes.contact.customFields);
-                    // Creating New Opportunity ---------------------------------
-                    console.log("Creating New Opportunity, because it's new contact");
-                    ResAfterDone.OpportunityFound = "Creating New Opportunity, because it's new contact";
-                    AllLogs.OpportunityFound = "Creating New Opportunity, because it's new contact";
-                    NewOpportunityData.contactId = createContactRes.contact.id;
-                    await createOpportunity(NewOpportunityData);
-                    await createAccessTokenFromRefresh();
-                    if (OppRes) {
-                        console.log("Opportunity Created Successfully");
-                        ResAfterDone.OpportunityUpdate = "Opportunity Created Successfully";
-                        AllLogs.OpportunityUpdate = "Opportunity Created Successfully";
-                        console.log(OppRes);
-                        ResAfterDone.Opportunity = OppRes;
-                        AllLogs.Opportunity = OppRes;
-                        res.json({msg: "Opportunity Created Successfully"});
+        if (req.body.phone || req.body.email) {
+            await searchContact(req.body.phone, req.body.email);
+            if (SearchContact === null) {
+                console.log("Contact Not exsits");
+                ResAfterDone.ContactFound = "Contact Not exsits";
+                AllLogs.ContactFound = "Contact Not exsits";
+                await createContact(NewContactData);
+                await createAccessTokenFromRefresh();
+                console.log(createContactRes);
+                ResAfterDone.Contact = createContactRes;
+                AllLogs.Contact = createContactRes;
+                if (createContactRes) {
+                    if (createContactRes.contact.id) {
+                        console.log("Contact Created Successfully");
+                        ResAfterDone.ContactUpdate = "Contact Created Successfully";
+                        AllLogs.ContactUpdate = "Contact Created Successfully";
+                        console.log(createContactRes);
+                        ResAfterDone.Contact = createContactRes;
+                        AllLogs.Contact = createContactRes;
+                        console.log(createContactRes.contact.customFields);
+                        // Creating New Opportunity ---------------------------------
+                        console.log("Creating New Opportunity, because it's new contact");
+                        ResAfterDone.OpportunityFound = "Creating New Opportunity, because it's new contact";
+                        AllLogs.OpportunityFound = "Creating New Opportunity, because it's new contact";
+                        NewOpportunityData.contactId = createContactRes.contact.id;
+                        await createOpportunity(NewOpportunityData);
+                        await createAccessTokenFromRefresh();
+                        if (OppRes) {
+                            console.log("Opportunity Created Successfully");
+                            ResAfterDone.OpportunityUpdate = "Opportunity Created Successfully";
+                            AllLogs.OpportunityUpdate = "Opportunity Created Successfully";
+                            console.log(OppRes);
+                            ResAfterDone.Opportunity = OppRes;
+                            AllLogs.Opportunity = OppRes;
+                            res.json({msg: "Opportunity Created Successfully"});
+                        } else {
+                            console.log("Opportunity Not Created, Somthing went wrong!");
+                            ResAfterDone.OpportunityUpdate = "Opportunity Not Created, Somthing went wrong!";
+                            AllLogs.OpportunityUpdate = "Opportunity Not Created, Somthing went wrong!";
+                            res.json({msg: "Opportunity Not Created, Somthing went wrong!"});
+                        }
                     } else {
-                        console.log("Opportunity Not Created, Somthing went wrong!");
-                        ResAfterDone.OpportunityUpdate = "Opportunity Not Created, Somthing went wrong!";
-                        AllLogs.OpportunityUpdate = "Opportunity Not Created, Somthing went wrong!";
-                        res.json({msg: "Opportunity Not Created, Somthing went wrong!"});
+                        console.log("Contact ID Not Found");
+                        ResAfterDone.OpportunityUpdate = "Opportunity Not Created, Bec; Contact Id Not Found";
                     }
                 } else {
-                    console.log("Contact ID Not Found");
-                    ResAfterDone.OpportunityUpdate = "Opportunity Not Created, Bec; Contact Id Not Found";
+                    console.log("Contact Not Created, Somthing went wrong!");
+                    ResAfterDone.ContactUpdate = "Contact Not Created, Somthing went wrong!";
                 }
             } else {
-                console.log("Contact Not Created, Somthing went wrong!");
-                ResAfterDone.ContactUpdate = "Contact Not Created, Somthing went wrong!";
+                console.log("Contact Founded");
+                ResAfterDone.ContactFound = "Contact Founded";
+                AllLogs.ContactFound = "Contact Founded";
+                delete NewContactData.locationId;
+                await updateContact(NewContactData, SearchContact.id);
+                await createAccessTokenFromRefresh();
+                if (updateContactRes) {
+                    if (updateContactRes.succeded) {
+                        console.log("Contact Updated Successfully");
+                        ResAfterDone.ContactUpdate = "Contact Updated Successfully";
+                        AllLogs.ContactUpdate = "Contact Updated Successfully";
+                        console.log(updateContactRes);
+                        ResAfterDone.Contact = updateContactRes;
+                        AllLogs.Contact = updateContactRes;
+                        console.log(updateContactRes.contact.customFields);
+                        // Create/Update Opp
+                        if (updateContactRes.contact.id) {
+                            await searchOpportunity(updateContactRes.contact.id);
+                            await createAccessTokenFromRefresh();
+                            if (SearchOppRes) {
+                                if (SearchOppRes.opportunities.length === 0) {
+                                    console.log("Opportunity Not Found");
+                                    ResAfterDone.OpportunityFound = "Opportunity Not Found";
+                                    AllLogs.OpportunityFound = "Opportunity Not Found";
+                                    NewOpportunityData.contactId = updateContactRes.contact.id;
+                                    await createOpportunity(NewOpportunityData);
+                                    await createAccessTokenFromRefresh();
+                                    if (OppRes) {
+                                        console.log("Opportunity Created Successfully");
+                                        ResAfterDone.OpportunityUpdate = "Opportunity Created Successfully";
+                                        AllLogs.OpportunityUpdate = "Opportunity Created Successfully";
+                                        console.log(OppRes);
+                                        ResAfterDone.Opportunity = OppRes;
+                                        AllLogs.Opportunity = OppRes;
+                                        res.json({msg: "Opportunity Created Successfully"});
+                                    } else {
+                                        console.log("Opportunity Not Created, Somthing went wrong!");
+                                        ResAfterDone.OpportunityUpdate = "Opportunity Not Created, Somthing went wrong!";
+                                        AllLogs.OpportunityUpdate = "Opportunity Not Created, Somthing went wrong!";
+                                        res.json({msg: "Opportunity Not Created, Somthing went wrong!"});
+                                    }
+                                } else if (SearchOppRes.opportunities[0].id) {
+                                    console.log("Opportunity Found");
+                                    ResAfterDone.OpportunityFound = "Opportunity Found"
+                                    AllLogs.OpportunityFound = "Opportunity Found"
+                                    console.log("OLD Pipline: " + SearchOppRes.opportunities[0].pipelineId);
+                                    console.log("NEW Pipline: " + pipelineId);
+                                    delete NewOpportunityData.locationId;
+                                    await updateOpp(NewOpportunityData, SearchOppRes.opportunities[0].id);
+                                    await createAccessTokenFromRefresh();
+                                    if (updateOppRes) {
+                                        console.log("Opportunity Updated Successfully");
+                                        ResAfterDone.OpportunityUpdate = "Opportunity Updated Successfully";
+                                        AllLogs.OpportunityUpdate = "Opportunity Updated Successfully";
+                                        console.log(updateOppRes);
+                                        ResAfterDone.Opportunity = updateOppRes;
+                                        AllLogs.Opportunity = updateOppRes;
+                                        res.json({msg: "Opportunity Updated Successfully"});
+                                    } else {
+                                        console.log("Opportunity Not Updated, Somthing went wrong!");
+                                        ResAfterDone.OpportunityUpdate = "Opportunity Not Updated, Somthing went wrong!";
+                                        AllLogs.OpportunityUpdate = "Opportunity Not Updated, Somthing went wrong!";
+                                        res.json({msg: "Opportunity Not Updated, Somthing went wrong!"});
+                                    }
+                                }
+                            } else {
+                                console.log("SearchOppRes not exists");
+                            };
+                        }
+
+                    } else {
+                        console.log("Contact Not Updated, Somthing went wrong!");
+                    }
+                };
             }
         } else {
-            console.log("Contact Founded");
-            ResAfterDone.ContactFound = "Contact Founded";
-            AllLogs.ContactFound = "Contact Founded";
-            delete NewContactData.locationId;
-            await updateContact(NewContactData, SearchContact.id);
-            await createAccessTokenFromRefresh();
-            if (updateContactRes) {
-                if (updateContactRes.succeded) {
-                    console.log("Contact Updated Successfully");
-                    ResAfterDone.ContactUpdate = "Contact Updated Successfully";
-                    AllLogs.ContactUpdate = "Contact Updated Successfully";
-                    console.log(updateContactRes);
-                    ResAfterDone.Contact = updateContactRes;
-                    AllLogs.Contact = updateContactRes;
-                    console.log(updateContactRes.contact.customFields);
-                    // Create/Update Opp
-                    if (updateContactRes.contact.id) {
-                        await searchOpportunity(updateContactRes.contact.id);
-                        await createAccessTokenFromRefresh();
-                        if (SearchOppRes) {
-                            if (SearchOppRes.opportunities.length === 0) {
-                                console.log("Opportunity Not Found");
-                                ResAfterDone.OpportunityFound = "Opportunity Not Found";
-                                AllLogs.OpportunityFound = "Opportunity Not Found";
-                                NewOpportunityData.contactId = updateContactRes.contact.id;
-                                await createOpportunity(NewOpportunityData);
-                                await createAccessTokenFromRefresh();
-                                if (OppRes) {
-                                    console.log("Opportunity Created Successfully");
-                                    ResAfterDone.OpportunityUpdate = "Opportunity Created Successfully";
-                                    AllLogs.OpportunityUpdate = "Opportunity Created Successfully";
-                                    console.log(OppRes);
-                                    ResAfterDone.Opportunity = OppRes;
-                                    AllLogs.Opportunity = OppRes;
-                                    res.json({msg: "Opportunity Created Successfully"});
-                                } else {
-                                    console.log("Opportunity Not Created, Somthing went wrong!");
-                                    ResAfterDone.OpportunityUpdate = "Opportunity Not Created, Somthing went wrong!";
-                                    AllLogs.OpportunityUpdate = "Opportunity Not Created, Somthing went wrong!";
-                                    res.json({msg: "Opportunity Not Created, Somthing went wrong!"});
-                                }
-                            } else if (SearchOppRes.opportunities[0].id) {
-                                console.log("Opportunity Found");
-                                ResAfterDone.OpportunityFound = "Opportunity Found"
-                                AllLogs.OpportunityFound = "Opportunity Found"
-                                console.log("OLD Pipline: " + SearchOppRes.opportunities[0].pipelineId);
-                                console.log("NEW Pipline: " + pipelineId);
-                                delete NewOpportunityData.locationId;
-                                await updateOpp(NewOpportunityData, SearchOppRes.opportunities[0].id);
-                                await createAccessTokenFromRefresh();
-                                if (updateOppRes) {
-                                    console.log("Opportunity Updated Successfully");
-                                    ResAfterDone.OpportunityUpdate = "Opportunity Updated Successfully";
-                                    AllLogs.OpportunityUpdate = "Opportunity Updated Successfully";
-                                    console.log(updateOppRes);
-                                    ResAfterDone.Opportunity = updateOppRes;
-                                    AllLogs.Opportunity = updateOppRes;
-                                    res.json({msg: "Opportunity Updated Successfully"});
-                                } else {
-                                    console.log("Opportunity Not Updated, Somthing went wrong!");
-                                    ResAfterDone.OpportunityUpdate = "Opportunity Not Updated, Somthing went wrong!";
-                                    AllLogs.OpportunityUpdate = "Opportunity Not Updated, Somthing went wrong!";
-                                    res.json({msg: "Opportunity Not Updated, Somthing went wrong!"});
-                                }
-                            }
-                        } else {
-                            console.log("SearchOppRes not exists");
-                        };
-                    }
-
-                } else {
-                    console.log("Contact Not Updated, Somthing went wrong!");
-                }
-            };
+            res.json({msg: "There are no phone or email in request"});
+            console.log("There are no phone or email in request");
+            AllLogs.Contact = "There are no phone or email in request";
         }
-        fs.appendFileSync('./Response.log', JSON.stringify([ResAfterDone]));
-        fs.appendFileSync('./AllLOGS.log', JSON.stringify([AllLogs]));
         await createAccessTokenFromRefresh();
         console.log("ALL Operations Done Successfully");
+        fs.appendFileSync('./Response.log', JSON.stringify([ResAfterDone]));
+        fs.appendFileSync('./AllLOGS.log', JSON.stringify([AllLogs]));
     }
     runAsyncFunctionsInOrder();
 });
