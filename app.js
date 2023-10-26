@@ -220,6 +220,7 @@ app.post('/upsertContact', (req, res) => {
         ContactFound: "",
         ContactUpdate: "",
         Contact: "",
+        Oppreq: "",
         OpportunityFound: "",
         OpportunityUpdate: "",
         Opportunity: ""
@@ -237,8 +238,14 @@ app.post('/upsertContact', (req, res) => {
     let pipelineId;
     switch (req.body.stage) {
         case "Lead":
+            pipelineId = "Y6FEUB7ogzVp9NGqOEGp";
+            break;
         case "Lost":
+            pipelineId = "Y6FEUB7ogzVp9NGqOEGp";
+            break;
         case "Not Workable":
+            pipelineId = "Y6FEUB7ogzVp9NGqOEGp";
+            break;
         case "Sales Pipeline":
             pipelineId = "Y6FEUB7ogzVp9NGqOEGp";
             break;
@@ -252,10 +259,20 @@ app.post('/upsertContact', (req, res) => {
             pipelineId = "sTLqxN8vtNtbEC4qnHde";
             break;
         case "Servicing-Clarity":
+            pipelineId = "S6QYGwROfr6i3C7Pld4S";
+            break;
         case "Servicing-Cordoba":
+            pipelineId = "S6QYGwROfr6i3C7Pld4S";
+            break;
         case "Dropped Clients":
+            pipelineId = "S6QYGwROfr6i3C7Pld4S";
+            break;
         case "Completed Client":
+            pipelineId = "S6QYGwROfr6i3C7Pld4S";
+            break;
         case "Client":
+            pipelineId = "S6QYGwROfr6i3C7Pld4S";
+            break;
         case "Cancelled":
             pipelineId = "S6QYGwROfr6i3C7Pld4S";
             break;
@@ -265,6 +282,8 @@ app.post('/upsertContact', (req, res) => {
     let stageId;
     switch (req.body.status) {
         case "New Lead":
+            stageId = "4846cdee-0231-406d-b0ac-0b83ce8ae384";
+            break;
         case "New Lead - PL Data":
             stageId = "4846cdee-0231-406d-b0ac-0b83ce8ae384";
             break;
@@ -326,13 +345,29 @@ app.post('/upsertContact', (req, res) => {
             stageId = "a3277252-7381-4bb3-a1b9-2e99b63fb492";
             break;
         case "Low Debt":
+            stageId = "b6addd21-1043-42c3-a9b9-bcc0c50a4a9d";
+            break;
         case "No Debt":
+            stageId = "b6addd21-1043-42c3-a9b9-bcc0c50a4a9d";
+            break;
         case "Number Disconnected":
+            stageId = "b6addd21-1043-42c3-a9b9-bcc0c50a4a9d";
+            break;
         case "Already Enrolled":
+            stageId = "b6addd21-1043-42c3-a9b9-bcc0c50a4a9d";
+            break;
         case "Unemployed/Low Income":
+            stageId = "b6addd21-1043-42c3-a9b9-bcc0c50a4a9d";
+            break;
         case "Bankruptcy":
+            stageId = "b6addd21-1043-42c3-a9b9-bcc0c50a4a9d";
+            break;
         case "Bad State":
+            stageId = "b6addd21-1043-42c3-a9b9-bcc0c50a4a9d";
+            break;
         case "Duplicate":
+            stageId = "b6addd21-1043-42c3-a9b9-bcc0c50a4a9d";
+            break;
         case "Do Not Call":
             stageId = "b6addd21-1043-42c3-a9b9-bcc0c50a4a9d";
             break;
@@ -340,10 +375,20 @@ app.post('/upsertContact', (req, res) => {
             stageId = "e2256b37-b8a5-4ff6-b10e-b8ea7313a932";
             break;
         case "Active - Clarity":
+            stageId = "64891462-caca-462f-adf7-3d8b709ea82d";
+            break;
         case "Initial Draft Pending":
+            stageId = "64891462-caca-462f-adf7-3d8b709ea82d";
+            break;
         case "Awaiting First Settlement":
+            stageId = "64891462-caca-462f-adf7-3d8b709ea82d";
+            break;
         case "Term Settlement":
+            stageId = "64891462-caca-462f-adf7-3d8b709ea82d";
+            break;
         case "Graduated":
+            stageId = "64891462-caca-462f-adf7-3d8b709ea82d";
+            break;
         case "Final Payment - File Review":
             stageId = "64891462-caca-462f-adf7-3d8b709ea82d";
             break;
@@ -586,6 +631,7 @@ app.post('/upsertContact', (req, res) => {
                         ResAfterDone.OpportunityFound = "Creating New Opportunity, because it's new contact";
                         AllLogs.OpportunityFound = "Creating New Opportunity, because it's new contact";
                         NewOpportunityData.contactId = createContactRes.contact.id;
+                        AllLogs.Oppreq = NewOpportunityData;
                         await createOpportunity(NewOpportunityData);
                         await createAccessTokenFromRefresh();
                         if (OppRes) {
@@ -636,6 +682,7 @@ app.post('/upsertContact', (req, res) => {
                                     ResAfterDone.OpportunityFound = "Opportunity Not Found";
                                     AllLogs.OpportunityFound = "Opportunity Not Found";
                                     NewOpportunityData.contactId = updateContactRes.contact.id;
+                                    AllLogs.Oppreq = NewOpportunityData;
                                     await createOpportunity(NewOpportunityData);
                                     await createAccessTokenFromRefresh();
                                     if (OppRes) {
@@ -659,6 +706,7 @@ app.post('/upsertContact', (req, res) => {
                                     console.log("OLD Pipline: " + SearchOppRes.opportunities[0].pipelineId);
                                     console.log("NEW Pipline: " + pipelineId);
                                     delete NewOpportunityData.locationId;
+                                    AllLogs.Oppreq = NewOpportunityData;
                                     await updateOpp(NewOpportunityData, SearchOppRes.opportunities[0].id);
                                     await createAccessTokenFromRefresh();
                                     if (updateOppRes) {
