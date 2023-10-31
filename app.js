@@ -341,6 +341,9 @@ app.post('/upsertContact', (req, res) => {
         case "Contract Needed":
             stageId = "e66e5c89-8c18-4da1-b942-f7f8dd4130f9";
             break;
+        case "Approved":
+            stageId = "e66e5c89-8c18-4da1-b942-f7f8dd4130f9";
+            break;
         case "Returned":
             stageId = "a3277252-7381-4bb3-a1b9-2e99b63fb492";
             break;
@@ -378,7 +381,7 @@ app.post('/upsertContact', (req, res) => {
             stageId = "64891462-caca-462f-adf7-3d8b709ea82d";
             break;
         case "Initial Draft Pending":
-            stageId = "64891462-caca-462f-adf7-3d8b709ea82d";
+            stageId = "0c84c727-cbef-4abd-8f4e-30ce5c37d5d3";
             break;
         case "Awaiting First Settlement":
             stageId = "64891462-caca-462f-adf7-3d8b709ea82d";
@@ -396,40 +399,40 @@ app.post('/upsertContact', (req, res) => {
             stageId = "21c7e720-e367-4c85-a91c-6ae3a2df39b7";
             break;
         case "1st Payment NSF 1":
-            stageId = "21c7e720-e367-4c85-a91c-6ae3a2df39b8";
+            stageId = "21c7e720-e367-4c85-a91c-6ae3a2df39b7";
             break;
         case "1st Payment NSF 2":
-            stageId = "21c7e720-e367-4c85-a91c-6ae3a2df39b9";
+            stageId = "21c7e720-e367-4c85-a91c-6ae3a2df39b7";
             break;
         case "NSF 1":
-            stageId = "21c7e720-e367-4c85-a91c-6ae3a2df39b10";
+            stageId = "21c7e720-e367-4c85-a91c-6ae3a2df39b7";
             break;
         case "NSF 2":
-            stageId = "21c7e720-e367-4c85-a91c-6ae3a2df39b11";
+            stageId = "21c7e720-e367-4c85-a91c-6ae3a2df39b7";
             break;
         case "NSF":
             stageId = "21c7e720-e367-4c85-a91c-6ae3a2df39b7";
             break;
         case "Invalid Banking":
-            stageId = "21c7e720-e367-4c85-a91c-6ae3a2df39b12";
+            stageId = "21c7e720-e367-4c85-a91c-6ae3a2df39b7";
             break;
         case "Unable to Locate Account 2":
-            stageId = "21c7e720-e367-4c85-a91c-6ae3a2df39b13";
+            stageId = "21c7e720-e367-4c85-a91c-6ae3a2df39b7";
             break;
         case "Stopped Payment/Revoked":
-            stageId = "21c7e720-e367-4c85-a91c-6ae3a2df39b14";
+            stageId = "21c7e720-e367-4c85-a91c-6ae3a2df39b7";
             break;
         case "Drafts on Hold":
-            stageId = "21c7e720-e367-4c85-a91c-6ae3a2df39b15";
+            stageId = "21c7e720-e367-4c85-a91c-6ae3a2df39b7";
             break;
         case "Drafts on Hold - Cancel Pending":
             stageId = "b393dae2-d08f-4bd5-8f43-29888d347210";
             break;
         case "Paused / Hold":
-            stageId = "21c7e720-e367-4c85-a91c-6ae3a2df39b8";
+            stageId = "21c7e720-e367-4c85-a91c-6ae3a2df39b7";
             break;
         case "Banking Error":
-            stageId = "21c7e720-e367-4c85-a91c-6ae3a2df39b9";
+            stageId = "21c7e720-e367-4c85-a91c-6ae3a2df39b7";
             break;
         case "Cancellation Requested":
             stageId = "b393dae2-d08f-4bd5-8f43-29888d347210";
@@ -448,9 +451,6 @@ app.post('/upsertContact', (req, res) => {
             break;
         case "Admin Pause":
             stageId = "21c7e720-e367-4c85-a91c-6ae3a2df39b7";
-            break;
-        case "Final Payment - File Review":
-            stageId = "64891462-caca-462f-adf7-3d8b709ea82d";
             break;
         case "Cancelled":
             stageId = "5bd4c19a-e0e8-4209-9691-11643c94abc4";
