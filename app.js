@@ -1,11 +1,14 @@
 const express = require('express');
 const fs = require('fs');
+const path = require('path');
 const bodyParser = require('body-parser');
 const app = express();
 const axios = require('axios').default;
 const {URLSearchParams} = require('url');
 
-require('dotenv').config();
+//require('dotenv').config();
+require('dotenv').config({ path: path.resolve(__dirname, '../.env_Matthew') });
+
 const port = process.env.PORT || 3000;
 const locationId = process.env.locationId;
 const client_id = process.env.client_id;
